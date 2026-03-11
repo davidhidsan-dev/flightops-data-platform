@@ -4,3 +4,4 @@ Airport operations monitoring project built with Python, SQL, BigQuery, OpenSky,
 
 ## Project goal
 Build an end-to-end data pipeline to ingest flight and weather data, transform it into analytics-ready tables, and publish a final airport-hour level dataset.
+
