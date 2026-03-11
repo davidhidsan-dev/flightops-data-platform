@@ -1,0 +1,4 @@
+airport_icao,airport_iata,airport_name,city_name,country_name,latitude,longitude,timezone_name
+LEMD,MAD,Adolfo Suárez Madrid–Barajas Airport,Madrid,Spain,40.471926,-3.56264,Europe/Madrid
+LEBL,BCN,Barcelona International Airport,Barcelona,Spain,41.2971,2.07846,Europe/Madrid
+LEPA,PMI,Palma De Mallorca Airport,Palma de Mallorca,Spain,39.551700592,2.73881006241,Europe/Madrid
