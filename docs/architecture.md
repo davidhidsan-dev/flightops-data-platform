@@ -13,6 +13,45 @@ El pipeline:
 - publica un dataset final consolidado
 - ejecuta validaciones básicas de calidad de datos
 
+## ES — Diagrama de arquitectura
+
+flowchart TD
+    A[dim_airport_seed.csv] --> B[run_airport_pipeline.py]
+
+    B --> C[OpenSky Arrivals API]
+    B --> D[OpenSky Departures API]
+    B --> E[Open-Meteo API]
+
+    C --> F[data/raw/opensky/arrivals_*.json]
+    D --> G[data/raw/opensky/departures_*.json]
+    E --> H[data/raw/openmeteo/weather_*.json]
+
+    F --> I[arrivals_transform.py]
+    G --> J[departures_transform.py]
+    H --> K[weather_transform.py]
+
+    I --> L[data/staging/arrivals_*_table.csv]
+    J --> M[data/staging/departures_*_table.csv]
+    K --> N[data/staging/weather_*_table.csv]
+
+    L --> O[airport_hourly_operations.py]
+    M --> O
+
+    O --> P[data/marts/airport_hourly_operations_*.csv]
+
+    P --> Q[airport_hourly_operations_enriched.py]
+    N --> Q
+
+    Q --> R[data/marts/airport_hourly_operations_enriched_*.csv]
+
+    R --> S[publish_airport_operations.py]
+    S --> T[data/published/airport_hourly_operations_enriched.csv]
+
+    T --> U[check_airport_operations.py]
+    T --> V[bigquery_loader.py]
+
+    V --> W[BigQuery table]
+
 ## ES — Objetivo técnico
 
 El objetivo del proyecto es demostrar capacidades de data engineering mediante la construcción de un mini sistema de datos reproducible, parametrizable y extensible.
@@ -258,6 +297,45 @@ The pipeline:
 - builds mart tables aggregated by airport and hour
 - publishes a consolidated final dataset
 - runs basic data quality validations
+
+## EN — Architecture diagram
+
+flowchart TD
+    A[dim_airport_seed.csv] --> B[run_airport_pipeline.py]
+
+    B --> C[OpenSky Arrivals API]
+    B --> D[OpenSky Departures API]
+    B --> E[Open-Meteo API]
+
+    C --> F[data/raw/opensky/arrivals_*.json]
+    D --> G[data/raw/opensky/departures_*.json]
+    E --> H[data/raw/openmeteo/weather_*.json]
+
+    F --> I[arrivals_transform.py]
+    G --> J[departures_transform.py]
+    H --> K[weather_transform.py]
+
+    I --> L[data/staging/arrivals_*_table.csv]
+    J --> M[data/staging/departures_*_table.csv]
+    K --> N[data/staging/weather_*_table.csv]
+
+    L --> O[airport_hourly_operations.py]
+    M --> O
+
+    O --> P[data/marts/airport_hourly_operations_*.csv]
+
+    P --> Q[airport_hourly_operations_enriched.py]
+    N --> Q
+
+    Q --> R[data/marts/airport_hourly_operations_enriched_*.csv]
+
+    R --> S[publish_airport_operations.py]
+    S --> T[data/published/airport_hourly_operations_enriched.csv]
+
+    T --> U[check_airport_operations.py]
+    T --> V[bigquery_loader.py]
+
+    V --> W[BigQuery table]
 
 ## EN — Technical objective
 
