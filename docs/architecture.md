@@ -15,6 +15,9 @@ El pipeline:
 
 ## ES — Diagrama de arquitectura
 
+El siguiente diagrama resume el flujo completo del pipeline.
+
+```mermaid
 flowchart TD
     A[dim_airport_seed.csv] --> B[run_airport_pipeline.py]
 
@@ -51,6 +54,7 @@ flowchart TD
     T --> V[bigquery_loader.py]
 
     V --> W[BigQuery table]
+```
 
 ## ES — Objetivo técnico
 
@@ -300,6 +304,9 @@ The pipeline:
 
 ## EN — Architecture diagram
 
+The following diagram summarizes the full pipeline flow.
+
+```mermaid
 flowchart TD
     A[dim_airport_seed.csv] --> B[run_airport_pipeline.py]
 
@@ -336,6 +343,7 @@ flowchart TD
     T --> V[bigquery_loader.py]
 
     V --> W[BigQuery table]
+```
 
 ## EN — Technical objective
 
