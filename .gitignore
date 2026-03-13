@@ -141,3 +141,8 @@ __marimo__/
 
 # OS files
 .DS_Store
+
+data/raw/
+data/staging/
+data/marts/
+data/published/
