@@ -1,29 +1,44 @@
+import argparse
 import pandas as pd
 
 from src.config import DATA_DIR
+
+
+def parse_args() -> argparse.Namespace:
+    """
+    Parse command-line arguments for the hourly operations mart script.
+    """
+    parser = argparse.ArgumentParser(
+        description="Build the airport_hourly_operations mart table."
+    )
+    parser.add_argument(
+        "--airport-icao",
+        required=True,
+        help="ICAO code of the airport, for example LEMD.",
+    )
+    parser.add_argument(
+        "--date",
+        required=True,
+        help="Date to process in YYYY-MM-DD format.",
+    )
+    return parser.parse_args()
 
 
 def main() -> None:
     """
     Load arrivals and departures staging files, aggregate them by airport and hour,
     and build the airport_hourly_operations mart table.
-
-    The script:
-    - reads arrivals and departures staging CSV files
-    - aggregates arrivals by airport and observed arrival hour
-    - aggregates departures by airport and observed departure hour
-    - standardizes both aggregations to a common schema
-    - outer joins both hourly tables
-    - fills missing count values with zero
-    - derives final operational metrics
-    - saves the result as a mart CSV file
     """
+    args = parse_args()
+    airport_icao = args.airport_icao
+    run_date = args.date
+
     staging_dir = DATA_DIR / "staging"
     marts_dir = DATA_DIR / "marts"
     marts_dir.mkdir(parents=True, exist_ok=True)
 
-    arrivals_path = staging_dir / "arrivals_LEMD_2026-03-07_table.csv"
-    departures_path = staging_dir / "departures_LEMD_2026-03-07_table.csv"
+    arrivals_path = staging_dir / f"arrivals_{airport_icao}_{run_date}_table.csv"
+    departures_path = staging_dir / f"departures_{airport_icao}_{run_date}_table.csv"
 
     arrivals_df = pd.read_csv(arrivals_path, parse_dates=["observed_arrival_hour_utc"])
     departures_df = pd.read_csv(departures_path, parse_dates=["observed_departure_hour_utc"])
@@ -91,7 +106,7 @@ def main() -> None:
         by=["airport_icao", "operation_hour_utc"]
     ).reset_index(drop=True)
 
-    output_path = marts_dir / "airport_hourly_operations_LEMD_2026-03-07.csv"
+    output_path = marts_dir / f"airport_hourly_operations_{airport_icao}_{run_date}.csv"
     operations_df.to_csv(output_path, index=False)
 
     print(f"Rows written: {len(operations_df)}")

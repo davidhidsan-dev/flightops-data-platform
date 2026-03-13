@@ -6440,20 +6440,6 @@
     "arrivalAirportCandidatesCount": 3
   },
   {
-    "icao24": "346082",
-    "firstSeen": 1772869218,
-    "estDepartureAirport": null,
-    "lastSeen": 1772871733,
-    "estArrivalAirport": "LEMD",
-    "callsign": "AEA68WR ",
-    "estDepartureAirportHorizDistance": null,
-    "estDepartureAirportVertDistance": null,
-    "estArrivalAirportHorizDistance": 1864,
-    "estArrivalAirportVertDistance": 0,
-    "departureAirportCandidatesCount": 0,
-    "arrivalAirportCandidatesCount": 3
-  },
-  {
     "icao24": "345084",
     "firstSeen": 1772865479,
     "estDepartureAirport": "LIRQ",
@@ -6464,6 +6450,20 @@
     "estDepartureAirportVertDistance": 1663,
     "estArrivalAirportHorizDistance": 2702,
     "estArrivalAirportVertDistance": 7,
+    "departureAirportCandidatesCount": 0,
+    "arrivalAirportCandidatesCount": 3
+  },
+  {
+    "icao24": "346082",
+    "firstSeen": 1772869218,
+    "estDepartureAirport": null,
+    "lastSeen": 1772871733,
+    "estArrivalAirport": "LEMD",
+    "callsign": "AEA68WR ",
+    "estDepartureAirportHorizDistance": null,
+    "estDepartureAirportVertDistance": null,
+    "estArrivalAirportHorizDistance": 1864,
+    "estArrivalAirportVertDistance": 0,
     "departureAirportCandidatesCount": 0,
     "arrivalAirportCandidatesCount": 3
   },

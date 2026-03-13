@@ -1,7 +1,28 @@
+import argparse
 import json
 import pandas as pd
 
 from src.config import RAW_DIR, DATA_DIR
+
+
+def parse_args() -> argparse.Namespace:
+    """
+    Parse command-line arguments for the departures transform script.
+    """
+    parser = argparse.ArgumentParser(
+        description="Transform raw OpenSky departures data into a staging CSV file."
+    )
+    parser.add_argument(
+        "--airport-icao",
+        required=True,
+        help="ICAO code of the airport, for example LEMD.",
+    )
+    parser.add_argument(
+        "--date",
+        required=True,
+        help="Date to process in YYYY-MM-DD format.",
+    )
+    return parser.parse_args()
 
 
 def main() -> None:
@@ -18,7 +39,11 @@ def main() -> None:
     - derives an hourly UTC timestamp for later aggregation
     - saves the result as a local staging CSV file
     """
-    raw_path = RAW_DIR / "opensky" / "departures_LEMD_2026-03-07.json"
+    args = parse_args()
+    airport_icao = args.airport_icao
+    run_date = args.date
+
+    raw_path = RAW_DIR / "opensky" / f"departures_{airport_icao}_{run_date}.json"
 
     with raw_path.open("r", encoding="utf-8") as file:
         departures = json.load(file)
@@ -48,7 +73,7 @@ def main() -> None:
     df["observed_departure_time_utc"] = pd.to_datetime(
         df["first_seen_unix"],
         unit="s",
-        utc=True
+        utc=True,
     )
 
     df["observed_departure_hour_utc"] = df["observed_departure_time_utc"].dt.floor("h")
@@ -56,7 +81,7 @@ def main() -> None:
     staging_dir = DATA_DIR / "staging"
     staging_dir.mkdir(parents=True, exist_ok=True)
 
-    output_path = staging_dir / "departures_LEMD_2026-03-07_table.csv"
+    output_path = staging_dir / f"departures_{airport_icao}_{run_date}_table.csv"
     df.to_csv(output_path, index=False)
 
     print(f"Rows written: {len(df)}")
