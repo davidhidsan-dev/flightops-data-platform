@@ -1,0 +1,24 @@
+airport_icao,operation_hour_utc,observed_arrivals_count,unique_arrival_aircraft_count,observed_departures_count,unique_departure_aircraft_count,total_flights_observed,total_unique_aircraft_observed,temperature_2m_c,relative_humidity_2m_pct,precipitation_mm,wind_speed_10m_kmh,is_rainy_hour,is_high_wind_hour,is_high_traffic_hour
+LEBL,2026-03-07 00:00:00+00:00,8,8,4,4,12,12,12.2,95,0.1,19.3,True,False,False
+LEBL,2026-03-07 01:00:00+00:00,4,4,0,0,4,4,12.2,95,7.6,18.2,True,False,False
+LEBL,2026-03-07 03:00:00+00:00,1,1,0,0,1,1,11.9,97,4.8,12.3,True,False,False
+LEBL,2026-03-07 04:00:00+00:00,1,1,4,4,5,5,11.4,95,3.5,14.5,True,False,False
+LEBL,2026-03-07 05:00:00+00:00,2,2,19,19,21,21,11.6,91,2.3,6.1,True,False,False
+LEBL,2026-03-07 06:00:00+00:00,11,11,36,36,47,47,11.4,90,0.0,2.3,False,False,False
+LEBL,2026-03-07 07:00:00+00:00,31,31,16,16,47,47,11.6,89,0.1,1.2,True,False,False
+LEBL,2026-03-07 08:00:00+00:00,31,31,21,21,52,52,13.1,89,0.0,3.3,False,False,True
+LEBL,2026-03-07 09:00:00+00:00,24,24,33,33,57,57,13.9,76,0.3,7.4,True,False,True
+LEBL,2026-03-07 10:00:00+00:00,33,33,31,31,64,64,13.7,76,0.1,6.5,True,False,True
+LEBL,2026-03-07 11:00:00+00:00,20,20,33,33,53,53,14.3,71,0.1,5.0,True,False,True
+LEBL,2026-03-07 12:00:00+00:00,23,23,28,28,51,51,13.7,77,0.1,8.8,True,False,False
+LEBL,2026-03-07 13:00:00+00:00,23,23,23,23,46,46,13.5,76,0.0,11.2,False,False,False
+LEBL,2026-03-07 14:00:00+00:00,22,22,26,26,48,48,12.4,79,0.6,11.0,True,False,False
+LEBL,2026-03-07 15:00:00+00:00,25,25,22,22,47,47,12.1,81,0.7,7.2,True,False,False
+LEBL,2026-03-07 16:00:00+00:00,32,32,21,21,53,53,11.6,85,0.6,6.3,True,False,True
+LEBL,2026-03-07 17:00:00+00:00,29,29,31,31,60,60,11.2,91,0.4,5.2,True,False,True
+LEBL,2026-03-07 18:00:00+00:00,20,20,22,22,42,42,10.8,97,0.0,6.3,False,False,False
+LEBL,2026-03-07 19:00:00+00:00,22,22,21,21,43,43,10.8,96,0.3,10.2,True,False,False
+LEBL,2026-03-07 20:00:00+00:00,14,14,17,17,31,31,10.4,95,0.0,7.7,False,False,False
+LEBL,2026-03-07 21:00:00+00:00,18,18,8,8,26,26,10.2,94,0.0,8.7,False,False,False
+LEBL,2026-03-07 22:00:00+00:00,22,22,2,2,24,24,10.2,93,0.0,8.9,False,False,False
+LEBL,2026-03-07 23:00:00+00:00,9,9,1,1,10,10,10.1,91,0.0,9.0,False,False,False

@@ -59,19 +59,22 @@ def build_unix_day_window(run_date: str) -> tuple[int, int]:
     return begin, end
 
 
-def run_module(module_name: str, airport_icao: str, run_date: str) -> None:
+def run_module(module_name: str, airport_icao: str | None = None, run_date: str | None = None) -> None:
     """
-    Execute a Python module with airport and date arguments.
+    Execute a Python module, optionally passing airport and date arguments.
     """
-    command = [
-        sys.executable,
-        "-m",
-        module_name,
-        "--airport-icao",
-        airport_icao,
-        "--date",
-        run_date,
-    ]
+    command = [sys.executable, "-m", module_name]
+
+    if airport_icao is not None and run_date is not None:
+        command.extend(
+            [
+                "--airport-icao",
+                airport_icao,
+                "--date",
+                run_date,
+            ]
+        )
+
     subprocess.run(command, check=True)
 
 
@@ -117,6 +120,12 @@ def main() -> None:
     print("Building marts...")
     run_module("src.transform.airport_hourly_operations", airport_icao, run_date)
     run_module("src.transform.airport_hourly_operations_enriched", airport_icao, run_date)
+
+    print("Publishing consolidated dataset...")
+    run_module("src.transform.publish_airport_operations")
+
+    print("Running data quality checks...")
+    run_module("src.quality.check_airport_operations")
 
     print("Pipeline completed successfully.")
 

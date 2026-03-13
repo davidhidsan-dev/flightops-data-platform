@@ -1,0 +1,23 @@
+airport_icao,operation_hour_utc,observed_arrivals_count,unique_arrival_aircraft_count,observed_departures_count,unique_departure_aircraft_count,total_flights_observed,total_unique_aircraft_observed,temperature_2m_c,relative_humidity_2m_pct,precipitation_mm,wind_speed_10m_kmh,is_rainy_hour,is_high_wind_hour,is_high_traffic_hour
+LEPA,2026-03-07 00:00:00+00:00,1,1,1,1,2,2,12.3,78,0.0,15.9,False,False,False
+LEPA,2026-03-07 03:00:00+00:00,1,1,0,0,1,1,12.8,75,0.0,17.4,False,False,False
+LEPA,2026-03-07 04:00:00+00:00,0,0,5,5,5,5,12.5,76,0.0,14.1,False,False,False
+LEPA,2026-03-07 05:00:00+00:00,2,2,5,5,7,7,12.4,77,0.0,10.6,False,False,False
+LEPA,2026-03-07 06:00:00+00:00,9,9,12,12,21,21,10.8,87,0.0,3.0,False,False,True
+LEPA,2026-03-07 07:00:00+00:00,13,13,14,14,27,27,10.9,86,0.0,11.5,False,False,True
+LEPA,2026-03-07 08:00:00+00:00,18,18,14,14,32,32,12.1,82,0.2,8.0,True,False,True
+LEPA,2026-03-07 09:00:00+00:00,16,16,14,14,30,30,11.9,93,0.8,13.0,True,False,True
+LEPA,2026-03-07 10:00:00+00:00,13,13,19,19,32,32,11.4,91,1.4,14.0,True,False,True
+LEPA,2026-03-07 11:00:00+00:00,18,18,16,16,34,34,11.4,91,1.1,10.4,True,False,True
+LEPA,2026-03-07 12:00:00+00:00,8,8,13,13,21,21,10.9,85,1.9,3.4,True,False,True
+LEPA,2026-03-07 13:00:00+00:00,6,6,8,8,14,14,11.6,82,0.4,3.3,True,False,False
+LEPA,2026-03-07 14:00:00+00:00,11,11,8,8,19,19,13.3,74,0.1,8.4,True,False,False
+LEPA,2026-03-07 15:00:00+00:00,5,5,12,12,17,17,13.4,74,0.0,13.1,False,False,False
+LEPA,2026-03-07 16:00:00+00:00,14,14,6,6,20,20,13.7,75,0.0,12.1,False,False,False
+LEPA,2026-03-07 17:00:00+00:00,7,7,13,13,20,20,12.9,77,0.0,10.3,False,False,False
+LEPA,2026-03-07 18:00:00+00:00,9,9,12,12,21,21,11.4,85,0.0,8.9,False,False,True
+LEPA,2026-03-07 19:00:00+00:00,8,8,12,12,20,20,10.6,90,0.1,11.3,True,False,False
+LEPA,2026-03-07 20:00:00+00:00,4,4,3,3,7,7,10.3,90,0.0,10.6,False,False,False
+LEPA,2026-03-07 21:00:00+00:00,5,5,4,4,9,9,9.9,92,0.0,7.1,False,False,False
+LEPA,2026-03-07 22:00:00+00:00,5,5,1,1,6,6,9.2,92,0.0,7.5,False,False,False
+LEPA,2026-03-07 23:00:00+00:00,1,1,0,0,1,1,8.8,93,0.0,7.6,False,False,False

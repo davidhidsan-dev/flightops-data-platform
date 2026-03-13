@@ -3556,20 +3556,6 @@
     "arrivalAirportCandidatesCount": 3
   },
   {
-    "icao24": "345543",
-    "firstSeen": 1772888130,
-    "estDepartureAirport": "LPPT",
-    "lastSeen": 1772891181,
-    "estArrivalAirport": "LEMD",
-    "callsign": "ANE55CZ ",
-    "estDepartureAirportHorizDistance": 1022,
-    "estDepartureAirportVertDistance": 76,
-    "estArrivalAirportHorizDistance": 1369,
-    "estArrivalAirportVertDistance": 14,
-    "departureAirportCandidatesCount": 2,
-    "arrivalAirportCandidatesCount": 3
-  },
-  {
     "icao24": "344648",
     "firstSeen": 1772882859,
     "estDepartureAirport": "EHAM",
@@ -3581,6 +3567,20 @@
     "estArrivalAirportHorizDistance": 2305,
     "estArrivalAirportVertDistance": 45,
     "departureAirportCandidatesCount": 0,
+    "arrivalAirportCandidatesCount": 3
+  },
+  {
+    "icao24": "345543",
+    "firstSeen": 1772888130,
+    "estDepartureAirport": "LPPT",
+    "lastSeen": 1772891181,
+    "estArrivalAirport": "LEMD",
+    "callsign": "ANE55CZ ",
+    "estDepartureAirportHorizDistance": 1022,
+    "estDepartureAirportVertDistance": 76,
+    "estArrivalAirportHorizDistance": 1369,
+    "estArrivalAirportVertDistance": 14,
+    "departureAirportCandidatesCount": 2,
     "arrivalAirportCandidatesCount": 3
   },
   {
@@ -6440,20 +6440,6 @@
     "arrivalAirportCandidatesCount": 3
   },
   {
-    "icao24": "345084",
-    "firstSeen": 1772865479,
-    "estDepartureAirport": "LIRQ",
-    "lastSeen": 1772871733,
-    "estArrivalAirport": "LEMD",
-    "callsign": "VLG1494 ",
-    "estDepartureAirportHorizDistance": 12092,
-    "estDepartureAirportVertDistance": 1663,
-    "estArrivalAirportHorizDistance": 2702,
-    "estArrivalAirportVertDistance": 7,
-    "departureAirportCandidatesCount": 0,
-    "arrivalAirportCandidatesCount": 3
-  },
-  {
     "icao24": "346082",
     "firstSeen": 1772869218,
     "estDepartureAirport": null,
@@ -6464,6 +6450,20 @@
     "estDepartureAirportVertDistance": null,
     "estArrivalAirportHorizDistance": 1864,
     "estArrivalAirportVertDistance": 0,
+    "departureAirportCandidatesCount": 0,
+    "arrivalAirportCandidatesCount": 3
+  },
+  {
+    "icao24": "345084",
+    "firstSeen": 1772865479,
+    "estDepartureAirport": "LIRQ",
+    "lastSeen": 1772871733,
+    "estArrivalAirport": "LEMD",
+    "callsign": "VLG1494 ",
+    "estDepartureAirportHorizDistance": 12092,
+    "estDepartureAirportVertDistance": 1663,
+    "estArrivalAirportHorizDistance": 2702,
+    "estArrivalAirportVertDistance": 7,
     "departureAirportCandidatesCount": 0,
     "arrivalAirportCandidatesCount": 3
   },
