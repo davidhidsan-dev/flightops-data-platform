@@ -37,6 +37,18 @@ Construir un pipeline reproducible y parametrizable que transforme datos raw de 
 - Git / GitHub
 - VS Code
 
+## ES — Estructura del repositorio
+
+- `data/seeds/`: datos semilla controlados, como la dimensión de aeropuertos
+- `src/extract/`: clientes y lógica de extracción desde OpenSky y Open-Meteo
+- `src/transform/`: transformaciones desde raw a staging, marts y dataset published
+- `src/load/`: carga del dataset final a BigQuery
+- `src/quality/`: validaciones básicas de calidad de datos
+- `src/run_airport_pipeline.py`: runner principal del pipeline end-to-end
+- `sql/`: espacio para consultas analíticas y SQL de consumo
+- `docs/`: documentación técnica del proyecto
+- `data/`: capas locales del pipeline (seed, raw, staging, marts, published)
+
 ## ES — Alcance actual
 
 El pipeline actual soporta:
@@ -142,6 +154,18 @@ Build a reproducible and parameterized pipeline that transforms raw flight and w
 - Open-Meteo API
 - Git / GitHub
 - VS Code
+
+## EN — Repository structure
+
+- `data/seeds/`: controlled seed data such as the airport dimension
+- `src/extract/`: extraction clients and logic for OpenSky and Open-Meteo
+- `src/transform/`: transformations from raw to staging, marts, and published dataset
+- `src/load/`: final dataset load into BigQuery
+- `src/quality/`: basic data quality validations
+- `src/run_airport_pipeline.py`: main end-to-end pipeline runner
+- `sql/`: space for analytical and consumption SQL queries
+- `docs/`: technical project documentation
+- `data/`: local pipeline layers (seed, raw, staging, marts, published)
 
 ## EN — Current scope
 
