@@ -29,20 +29,10 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def main() -> None:
+def transform_arrivals_dataframe(arrivals: list[dict]) -> pd.DataFrame:
     """
-    Load raw OpenSky arrivals data from a local JSON file and transform it
-    into a staging DataFrame with standardized column names and UTC time fields.
+    Transform raw OpenSky arrivals records into a cleaned staging DataFrame.
     """
-    args = parse_args()
-    airport_icao = args.airport_icao
-    run_date = args.date
-
-    raw_path = build_arrivals_raw_path(airport_icao, run_date)
-
-    with raw_path.open("r", encoding="utf-8") as file:
-        arrivals = json.load(file)
-
     df = pd.DataFrame(arrivals)
 
     df = df.rename(columns={
@@ -72,6 +62,25 @@ def main() -> None:
     )
 
     df["observed_arrival_hour_utc"] = df["observed_arrival_time_utc"].dt.floor("h")
+
+    return df
+
+
+def main() -> None:
+    """
+    Load raw OpenSky arrivals data from a local JSON file and transform it
+    into a staging CSV file.
+    """
+    args = parse_args()
+    airport_icao = args.airport_icao
+    run_date = args.date
+
+    raw_path = build_arrivals_raw_path(airport_icao, run_date)
+
+    with raw_path.open("r", encoding="utf-8") as file:
+        arrivals = json.load(file)
+
+    df = transform_arrivals_dataframe(arrivals)
 
     staging_dir = DATA_DIR / "staging"
     staging_dir.mkdir(parents=True, exist_ok=True)

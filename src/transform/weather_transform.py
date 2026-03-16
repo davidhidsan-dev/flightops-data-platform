@@ -29,20 +29,10 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def main() -> None:
+def transform_weather_dataframe(weather: dict, airport_icao: str) -> pd.DataFrame:
     """
-    Load raw Open-Meteo weather data from a local JSON file and transform it
-    into a staging DataFrame with standardized weather columns.
+    Transform raw Open-Meteo weather data into a cleaned staging DataFrame.
     """
-    args = parse_args()
-    airport_icao = args.airport_icao
-    run_date = args.date
-
-    raw_path = build_weather_raw_path(airport_icao, run_date)
-
-    with raw_path.open("r", encoding="utf-8") as file:
-        weather = json.load(file)
-
     hourly_data = weather["hourly"]
     df = pd.DataFrame(hourly_data)
 
@@ -68,6 +58,25 @@ def main() -> None:
             "wind_speed_10m_kmh",
         ]
     ]
+
+    return df
+
+
+def main() -> None:
+    """
+    Load raw Open-Meteo weather data from a local JSON file and transform it
+    into a staging CSV file.
+    """
+    args = parse_args()
+    airport_icao = args.airport_icao
+    run_date = args.date
+
+    raw_path = build_weather_raw_path(airport_icao, run_date)
+
+    with raw_path.open("r", encoding="utf-8") as file:
+        weather = json.load(file)
+
+    df = transform_weather_dataframe(weather, airport_icao)
 
     staging_dir = DATA_DIR / "staging"
     staging_dir.mkdir(parents=True, exist_ok=True)

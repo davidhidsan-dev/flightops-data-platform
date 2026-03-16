@@ -5,8 +5,9 @@ import pandas as pd
 from src.config import DATA_DIR
 from src.utils.path_builders import (
     build_departures_raw_path,
-    build_departures_staging_path
+    build_departures_staging_path,
 )
+
 
 def parse_args() -> argparse.Namespace:
     """
@@ -28,29 +29,10 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def main() -> None:
+def transform_departures_dataframe(departures: list[dict]) -> pd.DataFrame:
     """
-    Load raw OpenSky departures data from a local JSON file and transform it
-    into a staging DataFrame with standardized column names and UTC time fields.
-
-    The script:
-    - reads raw departures data from the raw layer
-    - renames relevant OpenSky fields
-    - selects the columns needed for the MVP
-    - cleans the callsign field
-    - converts Unix timestamps into UTC datetime fields
-    - derives an hourly UTC timestamp for later aggregation
-    - saves the result as a local staging CSV file
+    Transform raw OpenSky departures records into a cleaned staging DataFrame.
     """
-    args = parse_args()
-    airport_icao = args.airport_icao
-    run_date = args.date
-
-    raw_path = build_departures_raw_path(airport_icao, run_date)
-
-    with raw_path.open("r", encoding="utf-8") as file:
-        departures = json.load(file)
-
     df = pd.DataFrame(departures)
 
     df = df.rename(columns={
@@ -80,6 +62,25 @@ def main() -> None:
     )
 
     df["observed_departure_hour_utc"] = df["observed_departure_time_utc"].dt.floor("h")
+
+    return df
+
+
+def main() -> None:
+    """
+    Load raw OpenSky departures data from a local JSON file and transform it
+    into a staging CSV file.
+    """
+    args = parse_args()
+    airport_icao = args.airport_icao
+    run_date = args.date
+
+    raw_path = build_departures_raw_path(airport_icao, run_date)
+
+    with raw_path.open("r", encoding="utf-8") as file:
+        departures = json.load(file)
+
+    df = transform_departures_dataframe(departures)
 
     staging_dir = DATA_DIR / "staging"
     staging_dir.mkdir(parents=True, exist_ok=True)
