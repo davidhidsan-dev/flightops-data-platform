@@ -1,9 +1,14 @@
 import os
+import time
 from datetime import datetime, timedelta
 from typing import Any
 
 import requests
 from dotenv import load_dotenv
+
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 load_dotenv()
 
@@ -82,18 +87,53 @@ def _make_request(endpoint: str, params: dict[str, Any]) -> list[dict[str, Any]]
     Send an authenticated GET request to an OpenSky endpoint and return the JSON response.
     """
     url = BASE_URL + endpoint
-    response = requests.get(
-        url,
-        params=params,
-        headers=token_manager.get_headers(),
-        timeout=30,
-    )
+    max_retries = 3
+    sleep_seconds = 5
 
-    if response.status_code == 404:
-        return []
+    for attempt in range(1, max_retries + 1):
+        try:
+            logger.info(
+                f"Sending OpenSky request endpoint={endpoint} "
+                f"attempt={attempt}/{max_retries}"
+            )
 
-    response.raise_for_status()
-    return response.json()
+            response = requests.get(
+                url,
+                params=params,
+                headers=token_manager.get_headers(),
+                timeout=30,
+            )
+
+            if response.status_code == 404:
+                logger.warning(
+                    f"OpenSky returned 404 for endpoint={endpoint}. Returning empty list."
+                )
+                return []
+
+            response.raise_for_status()
+
+            logger.info(
+                f"OpenSky request succeeded endpoint={endpoint} "
+                f"attempt={attempt}/{max_retries}"
+            )
+            return response.json()
+
+        except Exception as error:
+            if attempt == max_retries:
+                logger.error(
+                    f"OpenSky request failed after {max_retries} attempts "
+                    f"endpoint={endpoint} error={error}"
+                )
+                raise
+
+            logger.warning(
+                f"OpenSky request failed endpoint={endpoint} "
+                f"attempt={attempt}/{max_retries} error={error}. "
+                f"Retrying in {sleep_seconds}s"
+            )
+            time.sleep(sleep_seconds)
+
+    raise RuntimeError(f"Unexpected retry flow for endpoint={endpoint}")
 
 
 def get_arrivals_by_airport(
