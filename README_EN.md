@@ -1,4 +1,4 @@
-# FlightOps Data Platform / Airport Operations Data Platform
+# FlightOps Airport Operations Data Pipeline
 
 Versión en español de este README: [README.md](README.md)
 
