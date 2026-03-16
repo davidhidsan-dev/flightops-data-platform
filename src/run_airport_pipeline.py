@@ -23,6 +23,7 @@ from src.transform.publish_airport_operations import (
     save_published_dataset,
 )
 from src.transform.weather_transform import transform_weather_dataframe
+from src.utils.logger import get_logger
 from src.utils.path_builders import (
     build_arrivals_raw_path,
     build_arrivals_staging_path,
@@ -33,6 +34,8 @@ from src.utils.path_builders import (
     build_weather_raw_path,
     build_weather_staging_path,
 )
+
+logger = get_logger(__name__)
 
 
 def parse_args() -> argparse.Namespace:
@@ -98,80 +101,146 @@ def main() -> None:
     airport_icao = args.airport_icao
     run_date = args.date
 
-    ensure_output_directories()
+    try:
+        logger.info(
+            f"Pipeline started for airport={airport_icao} date={run_date}"
+        )
 
-    airport_metadata = load_airport_metadata(airport_icao)
-    latitude = float(airport_metadata["latitude"])
-    longitude = float(airport_metadata["longitude"])
+        ensure_output_directories()
 
-    begin, end = build_unix_day_window(run_date)
+        airport_metadata = load_airport_metadata(airport_icao)
+        latitude = float(airport_metadata["latitude"])
+        longitude = float(airport_metadata["longitude"])
 
-    print("Starting raw extraction...")
-    extract_arrivals_raw(
-        airport_icao=airport_icao,
-        begin=begin,
-        end=end,
-        run_date=run_date,
-    )
-    extract_departures_raw(
-        airport_icao=airport_icao,
-        begin=begin,
-        end=end,
-        run_date=run_date,
-    )
-    extract_weather_raw(
-        airport_icao=airport_icao,
-        latitude=latitude,
-        longitude=longitude,
-        run_date=run_date,
-    )
+        logger.info(
+            f"Airport metadata loaded for airport={airport_icao} "
+            f"latitude={latitude} longitude={longitude}"
+        )
 
-    print("Loading raw JSON files...")
-    with build_arrivals_raw_path(airport_icao, run_date).open("r", encoding="utf-8") as f:
-        arrivals_raw = json.load(f)
+        begin, end = build_unix_day_window(run_date)
+        logger.info(
+            f"Built UTC window for date={run_date} begin={begin} end={end}"
+        )
 
-    with build_departures_raw_path(airport_icao, run_date).open("r", encoding="utf-8") as f:
-        departures_raw = json.load(f)
+        logger.info("Starting raw extraction")
+        extract_arrivals_raw(
+            airport_icao=airport_icao,
+            begin=begin,
+            end=end,
+            run_date=run_date,
+        )
+        extract_departures_raw(
+            airport_icao=airport_icao,
+            begin=begin,
+            end=end,
+            run_date=run_date,
+        )
+        extract_weather_raw(
+            airport_icao=airport_icao,
+            latitude=latitude,
+            longitude=longitude,
+            run_date=run_date,
+        )
+        logger.info("Raw extraction completed")
 
-    with build_weather_raw_path(airport_icao, run_date).open("r", encoding="utf-8") as f:
-        weather_raw = json.load(f)
+        logger.info("Loading raw JSON files")
+        with build_arrivals_raw_path(airport_icao, run_date).open("r", encoding="utf-8") as f:
+            arrivals_raw = json.load(f)
 
-    print("Building staging tables...")
-    arrivals_df = transform_arrivals_dataframe(arrivals_raw)
-    departures_df = transform_departures_dataframe(departures_raw)
-    weather_df = transform_weather_dataframe(weather_raw, airport_icao)
+        with build_departures_raw_path(airport_icao, run_date).open("r", encoding="utf-8") as f:
+            departures_raw = json.load(f)
 
-    arrivals_staging_path = build_arrivals_staging_path(airport_icao, run_date)
-    departures_staging_path = build_departures_staging_path(airport_icao, run_date)
-    weather_staging_path = build_weather_staging_path(airport_icao, run_date)
+        with build_weather_raw_path(airport_icao, run_date).open("r", encoding="utf-8") as f:
+            weather_raw = json.load(f)
 
-    arrivals_df.to_csv(arrivals_staging_path, index=False)
-    departures_df.to_csv(departures_staging_path, index=False)
-    weather_df.to_csv(weather_staging_path, index=False)
+        logger.info(f"Loaded arrivals raw records={len(arrivals_raw)}")
+        logger.info(f"Loaded departures raw records={len(departures_raw)}")
+        logger.info(
+            f"Loaded weather raw hourly records={len(weather_raw['hourly']['time'])}"
+        )
 
-    print("Building marts...")
-    operations_df = build_airport_hourly_operations(arrivals_df, departures_df)
-    operations_path = build_operations_mart_path(airport_icao, run_date)
-    operations_df.to_csv(operations_path, index=False)
+        logger.info("Building staging tables")
+        arrivals_df = transform_arrivals_dataframe(arrivals_raw)
+        departures_df = transform_departures_dataframe(departures_raw)
+        weather_df = transform_weather_dataframe(weather_raw, airport_icao)
 
-    enriched_df = build_airport_hourly_operations_enriched(operations_df, weather_df)
-    enriched_path = build_enriched_mart_path(airport_icao, run_date)
-    enriched_df.to_csv(enriched_path, index=False)
+        logger.info(f"Arrivals staging DataFrame built rows={len(arrivals_df)}")
+        logger.info(f"Departures staging DataFrame built rows={len(departures_df)}")
+        logger.info(f"Weather staging DataFrame built rows={len(weather_df)}")
 
-    print("Publishing consolidated dataset...")
-    published_df = build_published_dataset()
-    published_path = save_published_dataset(published_df)
+        if arrivals_df.empty:
+            logger.warning(
+                f"Arrivals staging DataFrame is empty for airport={airport_icao} date={run_date}"
+            )
+        if departures_df.empty:
+            logger.warning(
+                f"Departures staging DataFrame is empty for airport={airport_icao} date={run_date}"
+            )
+        if weather_df.empty:
+            logger.warning(
+                f"Weather staging DataFrame is empty for airport={airport_icao} date={run_date}"
+            )
 
-    print(f"Published dataset saved to: {published_path}")
+        arrivals_staging_path = build_arrivals_staging_path(airport_icao, run_date)
+        departures_staging_path = build_departures_staging_path(airport_icao, run_date)
+        weather_staging_path = build_weather_staging_path(airport_icao, run_date)
 
-    print("Running data quality checks...")
-    run_airport_operations_checks(published_df)
+        arrivals_df.to_csv(arrivals_staging_path, index=False)
+        departures_df.to_csv(departures_staging_path, index=False)
+        weather_df.to_csv(weather_staging_path, index=False)
 
-    print("Loading published dataset to BigQuery...")
-    table_id = load_airport_operations_to_bigquery(published_df)
-    print(f"Loaded published dataset into {table_id}")
+        logger.info(f"Arrivals staging saved to {arrivals_staging_path}")
+        logger.info(f"Departures staging saved to {departures_staging_path}")
+        logger.info(f"Weather staging saved to {weather_staging_path}")
 
-    print("Pipeline completed successfully.")
+        logger.info("Building marts")
+        operations_df = build_airport_hourly_operations(arrivals_df, departures_df)
+        operations_path = build_operations_mart_path(airport_icao, run_date)
+        operations_df.to_csv(operations_path, index=False)
+
+        logger.info(
+            f"Airport hourly operations mart built rows={len(operations_df)}"
+        )
+        logger.info(f"Airport hourly operations mart saved to {operations_path}")
+
+        enriched_df = build_airport_hourly_operations_enriched(operations_df, weather_df)
+        enriched_path = build_enriched_mart_path(airport_icao, run_date)
+        enriched_df.to_csv(enriched_path, index=False)
+
+        logger.info(
+            f"Airport hourly operations enriched mart built rows={len(enriched_df)}"
+        )
+        logger.info(
+            f"Airport hourly operations enriched mart saved to {enriched_path}"
+        )
+
+        logger.info("Building published dataset")
+        published_df = build_published_dataset()
+        published_path = save_published_dataset(published_df)
+
+        logger.info(f"Published dataset built rows={len(published_df)}")
+        logger.info(f"Published dataset saved to {published_path}")
+
+        if published_df.empty:
+            logger.warning("Published dataset is empty after consolidation")
+
+        logger.info("Running data quality checks on published dataset")
+        run_airport_operations_checks(published_df)
+        logger.info("Data quality checks completed successfully")
+
+        logger.info("Loading published dataset to BigQuery")
+        table_id = load_airport_operations_to_bigquery(published_df)
+        logger.info(f"BigQuery load completed table={table_id}")
+
+        logger.info(
+            f"Pipeline completed successfully for airport={airport_icao} date={run_date}"
+        )
+
+    except Exception as error:
+        logger.error(
+            f"Pipeline failed for airport={airport_icao} date={run_date}: {error}"
+        )
+        raise
 
 
 if __name__ == "__main__":
