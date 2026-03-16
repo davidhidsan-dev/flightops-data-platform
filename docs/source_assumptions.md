@@ -2,7 +2,7 @@
 
 ## ES — Uso de firstSeen y lastSeen
 
-OpenSky no garantiza que `firstSeen` y `lastSeen` representen exactamente la hora real de despegue o aterrizaje.
+OpenSky no garantiza que `firstSeen` y `lastSeen` representen exactamente la hora real de salida o llegada.
 
 Según la documentación de OpenSky:
 - `firstSeen` puede representar el primer punto observado después de la salida esperada o el momento en que la aeronave entra en el rango de recepción de la red.
@@ -27,7 +27,7 @@ Esto significa que:
 
 ## EN — Use of firstSeen and lastSeen
 
-OpenSky does not guarantee that `firstSeen` and `lastSeen` represent the exact real-world takeoff or landing time.
+OpenSky does not guarantee that `firstSeen` and `lastSeen` represent the exact real-world departure or arrival time.
 
 According to the OpenSky documentation:
 - `firstSeen` may represent the first observed point after the expected departure or the moment the aircraft enters the network reception range.

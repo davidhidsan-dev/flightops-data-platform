@@ -2,13 +2,14 @@
 
 ## ES — Descripción
 
-Proyecto end-to-end de data engineering para extraer, transformar, enriquecer y publicar datos de operaciones aeroportuarias observadas y meteorología horaria usando Python, OpenSky y Open-Meteo.
+Proyecto end-to-end de data engineering para extraer, transformar, enriquecer y publicar datos de operaciones aeroportuarias observadas y meteorología horaria usando Python, OpenSky, Open-Meteo y BigQuery.
 
 El proyecto construye un mini sistema de datos batch que:
 - ingiere llegadas y salidas observadas por aeropuerto
 - enriquece la actividad operativa con clima horario
 - publica un dataset final consolidado listo para análisis
 - ejecuta validaciones básicas de calidad de datos
+- carga el dataset final en BigQuery
 
 ## ES — Objetivo del proyecto
 
@@ -25,13 +26,14 @@ Construir un pipeline reproducible y parametrizable que transforme datos raw de 
 - data quality checks básicos
 - parametrización por aeropuerto y fecha
 - ejecución end-to-end mediante un runner
+- carga final del dataset publicado a BigQuery
 
 ## ES — Stack
 
 - Python
 - pandas
 - SQL
-- BigQuery (objetivo siguiente / siguiente fase)
+- BigQuery
 - OpenSky API
 - Open-Meteo API
 - Git / GitHub
@@ -47,6 +49,7 @@ Construir un pipeline reproducible y parametrizable que transforme datos raw de 
 - `src/run_airport_pipeline.py`: runner principal del pipeline end-to-end
 - `sql/`: espacio para consultas analíticas y SQL de consumo
 - `docs/`: documentación técnica del proyecto
+- `scripts/`: scripts auxiliares y pruebas exploratorias fuera del paquete principal
 - `data/`: capas locales del pipeline (seed, raw, staging, marts, published)
 
 ## ES — Alcance actual
@@ -58,6 +61,7 @@ El pipeline actual soporta:
 - clima horario desde Open-Meteo
 - consolidación de resultados multi-airport
 - checks básicos de calidad sobre el dataset final publicado
+- carga del dataset final consolidado a BigQuery
 
 ## ES — Flujo del pipeline
 
@@ -69,6 +73,7 @@ El pipeline actual soporta:
 6. enriquecimiento con clima en `airport_hourly_operations_enriched`
 7. publicación de un dataset consolidado
 8. validación de calidad de datos
+9. carga del dataset final a BigQuery
 
 ## ES — Dataset final
 
@@ -100,13 +105,15 @@ Quality checks:
 
     python -m src.quality.check_airport_operations
 
+Carga a BigQuery:
+
+    python -m src.load.bigquery_loader
+
 ## ES — Documentación técnica
 
 Documentación adicional disponible en:
 
 - `docs/architecture.md`
-- `docs/pipeline_flow.md`
-- `docs/mvp_scope.md`
 - `docs/source_assumptions.md`
 
 ## ES — Limitaciones actuales
@@ -114,19 +121,19 @@ Documentación adicional disponible en:
 - el pipeline es batch, no real-time
 - OpenSky modela actividad observada por la red, no horarios oficiales exactos
 - los quality checks actuales son básicos
-- la carga final a BigQuery todavía no está integrada en la versión actual
 
 ---
 
 ## EN — Description
 
-End-to-end data engineering project to extract, transform, enrich, and publish observed airport operations and hourly weather data using Python, OpenSky, and Open-Meteo.
+End-to-end data engineering project to extract, transform, enrich, and publish observed airport operations and hourly weather data using Python, OpenSky, Open-Meteo, and BigQuery.
 
 The project builds a batch mini data system that:
 - ingests observed airport arrivals and departures
 - enriches operational activity with hourly weather data
 - publishes a consolidated final dataset ready for analysis
 - runs basic data quality validations
+- loads the final dataset into BigQuery
 
 ## EN — Project goal
 
@@ -143,13 +150,14 @@ Build a reproducible and parameterized pipeline that transforms raw flight and w
 - basic data quality checks
 - airport/date parameterization
 - end-to-end execution through a pipeline runner
+- final loading of the published dataset into BigQuery
 
 ## EN — Stack
 
 - Python
 - pandas
 - SQL
-- BigQuery (next target / next phase)
+- BigQuery
 - OpenSky API
 - Open-Meteo API
 - Git / GitHub
@@ -165,6 +173,7 @@ Build a reproducible and parameterized pipeline that transforms raw flight and w
 - `src/run_airport_pipeline.py`: main end-to-end pipeline runner
 - `sql/`: space for analytical and consumption SQL queries
 - `docs/`: technical project documentation
+- `scripts/`: auxiliary scripts and exploratory tests kept outside the main package
 - `data/`: local pipeline layers (seed, raw, staging, marts, published)
 
 ## EN — Current scope
@@ -176,6 +185,7 @@ The current pipeline supports:
 - hourly weather data from Open-Meteo
 - multi-airport result consolidation
 - basic quality checks on the final published dataset
+- loading the final consolidated dataset into BigQuery
 
 ## EN — Pipeline flow
 
@@ -187,6 +197,7 @@ The current pipeline supports:
 6. weather enrichment in `airport_hourly_operations_enriched`
 7. publication of a consolidated dataset
 8. data quality validation
+9. loading the final dataset into BigQuery
 
 ## EN — Final dataset
 
@@ -218,13 +229,15 @@ Quality checks:
 
     python -m src.quality.check_airport_operations
 
+BigQuery loading:
+
+    python -m src.load.bigquery_loader
+
 ## EN — Technical documentation
 
 Additional documentation is available in:
 
 - `docs/architecture.md`
-- `docs/pipeline_flow.md`
-- `docs/mvp_scope.md`
 - `docs/source_assumptions.md`
 
 ## EN — Current limitations
@@ -232,4 +245,3 @@ Additional documentation is available in:
 - the pipeline is batch-based, not real-time
 - OpenSky models network-observed activity, not exact official schedules
 - current data quality checks are basic
-- final BigQuery loading is not yet integrated in the current version

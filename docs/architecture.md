@@ -12,6 +12,7 @@ El pipeline:
 - construye tablas mart agregadas por aeropuerto y hora
 - publica un dataset final consolidado
 - ejecuta validaciones básicas de calidad de datos
+- carga el dataset final en BigQuery
 
 ## ES — Diagrama de arquitectura
 
@@ -145,6 +146,12 @@ Contiene el dataset consolidado final listo para consumo analítico.
 Ejemplo:
 - `data/published/airport_hourly_operations_enriched.csv`
 
+### 6. Warehouse layer
+Contiene la tabla final cargada en BigQuery para consumo analítico posterior.
+
+Ejemplo:
+- `flightops.airport_hourly_operations_enriched`
+
 ## ES — Flujo del pipeline
 
 ### 1. Input del usuario
@@ -194,6 +201,38 @@ Los resultados por aeropuerto y fecha se consolidan en un único dataset publish
 
 ### 10. Data quality checks
 El dataset published se valida con checks básicos antes de considerarlo output final correcto.
+
+### 11. Carga a BigQuery
+El dataset publicado se carga en una tabla final de BigQuery para su consumo posterior.
+
+## ES — Selección de campos de OpenSky
+
+Para el MVP, se seleccionan únicamente los campos mínimos necesarios para construir una tabla de movimientos observados por aeropuerto y hora.
+
+### Campos usados
+- `icao24`
+- `callsign`
+- `firstSeen`
+- `lastSeen`
+- `estDepartureAirport`
+- `estArrivalAirport`
+
+### Campos excluidos por ahora
+- `estDepartureAirportHorizDistance`
+- `estDepartureAirportVertDistance`
+- `estArrivalAirportHorizDistance`
+- `estArrivalAirportVertDistance`
+- `departureAirportCandidatesCount`
+- `arrivalAirportCandidatesCount`
+
+### Justificación
+Los campos seleccionados permiten:
+- identificar aeronaves y vuelos observados
+- asociar movimientos a aeropuertos
+- derivar referencias temporales operativas
+- construir agregaciones horarias
+
+Los campos de distancia y número de candidatos se dejan fuera en esta versión para evitar complejidad adicional y porque no son estrictamente necesarios para el dataset analítico principal.
 
 ## ES — Tablas principales
 
@@ -249,10 +288,13 @@ Campos principales:
 ### `airport_hourly_operations_enriched.csv`
 Dataset published consolidado final.
 
+### `flightops.airport_hourly_operations_enriched`
+Tabla final cargada en BigQuery.
+
 ## ES — Supuestos y limitaciones
 
 ### 1. Observed operations vs exact operations
-Los campos `firstSeen` y `lastSeen` de OpenSky no representan necesariamente la hora exacta real de despegue o aterrizaje.
+Los campos `firstSeen` y `lastSeen` de OpenSky no representan necesariamente la hora exacta real de salida o llegada.
 
 En este proyecto:
 - `firstSeen` se usa como proxy de salida observada
@@ -264,7 +306,7 @@ Por tanto, el dataset modela actividad observada por la red, no horarios oficial
 El pipeline actual es batch y trabaja por fecha, no en tiempo real.
 
 ### 3. MVP acotado
-El MVP se centra en un conjunto pequeño de aeropuertos españoles y una ventana temporal diaria.
+El proyecto se ha construido inicialmente sobre un conjunto pequeño de aeropuertos españoles y una ventana temporal diaria.
 
 ### 4. Quality checks básicos
 La validación actual cubre checks esenciales, pero no incluye todavía:
@@ -287,6 +329,10 @@ Ejemplo de quality checks:
 
     python -m src.quality.check_airport_operations
 
+Ejemplo de carga a BigQuery:
+
+    python -m src.load.bigquery_loader
+
 ---
 
 ## EN — Overview
@@ -301,6 +347,7 @@ The pipeline:
 - builds mart tables aggregated by airport and hour
 - publishes a consolidated final dataset
 - runs basic data quality validations
+- loads the final dataset into BigQuery
 
 ## EN — Architecture diagram
 
@@ -434,6 +481,12 @@ Contains the final consolidated dataset ready for analytical consumption.
 Example:
 - `data/published/airport_hourly_operations_enriched.csv`
 
+### 6. Warehouse layer
+Contains the final table loaded into BigQuery for downstream analytical consumption.
+
+Example:
+- `flightops.airport_hourly_operations_enriched`
+
 ## EN — Pipeline flow
 
 ### 1. User input
@@ -483,6 +536,38 @@ Airport/date results are consolidated into a single published dataset.
 
 ### 10. Data quality checks
 The published dataset is validated with basic checks before being considered a reliable final output.
+
+### 11. BigQuery load
+The published dataset is loaded into a final BigQuery table for downstream use.
+
+## EN — OpenSky field selection
+
+For the MVP, only the minimum required fields are selected to build an observed movements table by airport and hour.
+
+### Fields used
+- `icao24`
+- `callsign`
+- `firstSeen`
+- `lastSeen`
+- `estDepartureAirport`
+- `estArrivalAirport`
+
+### Fields excluded for now
+- `estDepartureAirportHorizDistance`
+- `estDepartureAirportVertDistance`
+- `estArrivalAirportHorizDistance`
+- `estArrivalAirportVertDistance`
+- `departureAirportCandidatesCount`
+- `arrivalAirportCandidatesCount`
+
+### Justification
+The selected fields make it possible to:
+- identify observed aircraft and flights
+- associate movements with airports
+- derive operational time references
+- build hourly aggregations
+
+Distance fields and candidate-count fields are left out in this version to avoid extra complexity, since they are not strictly necessary for the main analytical dataset.
 
 ## EN — Main tables
 
@@ -538,10 +623,13 @@ Main fields:
 ### `airport_hourly_operations_enriched.csv`
 Final consolidated published dataset.
 
+### `flightops.airport_hourly_operations_enriched`
+Final table loaded into BigQuery.
+
 ## EN — Assumptions and limitations
 
 ### 1. Observed operations vs exact operations
-OpenSky `firstSeen` and `lastSeen` fields do not necessarily represent exact real-world departure or landing times.
+OpenSky `firstSeen` and `lastSeen` fields do not necessarily represent exact real-world departure or arrival times.
 
 In this project:
 - `firstSeen` is used as a proxy for observed departure time
@@ -553,7 +641,7 @@ Therefore, the dataset models network-observed activity, not exact official sche
 The current pipeline is batch-based and processes one date at a time, not real-time data.
 
 ### 3. Scoped MVP
-The MVP focuses on a small set of Spanish airports and a daily processing window.
+The project was initially built around a small set of Spanish airports and a daily processing window.
 
 ### 4. Basic quality checks
 The current validation layer covers essential checks, but does not yet include:
@@ -575,3 +663,7 @@ Example consolidated publishing step:
 Example quality checks execution:
 
     python -m src.quality.check_airport_operations
+
+Example BigQuery load:
+
+    python -m src.load.bigquery_loader
