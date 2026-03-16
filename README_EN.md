@@ -99,6 +99,16 @@ Example full pipeline run:
 
     python -m src.run_airport_pipeline --airport-icao LEMD --date 2026-03-07
 
+This command runs the full pipeline end to end:
+- raw extraction
+- staging transformations
+- mart construction
+- consolidated dataset publishing
+- quality checks
+- final BigQuery load
+
+The following commands can also be executed independently for development, debugging, or manual reprocessing:
+
 Consolidated publishing:
 
     python -m src.transform.publish_airport_operations

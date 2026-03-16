@@ -99,6 +99,16 @@ Ejemplo de ejecución del pipeline completo:
 
     python -m src.run_airport_pipeline --airport-icao LEMD --date 2026-03-07
 
+Este comando ejecuta de extremo a extremo:
+- extracción raw
+- transformaciones staging
+- construcción de marts
+- publicación del dataset consolidado
+- quality checks
+- carga final a BigQuery
+
+Los siguientes comandos pueden ejecutarse de forma independiente solo para desarrollo, depuración o reprocesado manual:
+
 Publicación consolidada:
 
     python -m src.transform.publish_airport_operations
