@@ -1,23 +1,18 @@
-from pathlib import Path
 import pandas as pd
 
-from src.config import DATA_DIR
+from src.utils.path_builders import build_published_dataset_path
 
 
-def main() -> None:
+def run_airport_operations_checks(df: pd.DataFrame) -> None:
     """
-    Run basic data quality checks on the published airport operations dataset.
+    Run basic data quality checks on the airport operations dataset.
 
-    The script validates:
+    The function validates:
     - non-null values in key columns
     - uniqueness at airport-hour grain
     - non-negative count metrics
     - consistency of derived total flight counts
     """
-    published_path = DATA_DIR / "published" / "airport_hourly_operations_enriched.csv"
-
-    df = pd.read_csv(published_path, parse_dates=["operation_hour_utc"])
-
     print(f"Rows loaded: {len(df)}")
 
     # Check 1: airport_icao must not be null
@@ -65,6 +60,17 @@ def main() -> None:
         )
 
     print("All data quality checks passed successfully.")
+
+
+def main() -> None:
+    """
+    Load the published airport operations dataset and run data quality checks.
+    """
+    published_path = build_published_dataset_path()
+
+    df = pd.read_csv(published_path, parse_dates=["operation_hour_utc"])
+
+    run_airport_operations_checks(df)
 
 
 if __name__ == "__main__":

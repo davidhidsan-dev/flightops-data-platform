@@ -5,14 +5,12 @@ from src.config import DATA_DIR
 from src.utils.path_builders import build_published_dataset_path
 
 
-def main() -> None:
+def build_published_dataset() -> pd.DataFrame:
     """
-    Read all airport_hourly_operations_enriched mart files, combine them into a
-    single published dataset, and save the consolidated CSV output.
+    Read all airport_hourly_operations_enriched mart files and combine them
+    into a single published DataFrame.
     """
     marts_dir = DATA_DIR / "marts"
-    published_dir = DATA_DIR / "published"
-    published_dir.mkdir(parents=True, exist_ok=True)
 
     input_files = sorted(
         marts_dir.glob("airport_hourly_operations_enriched_*.csv")
@@ -42,10 +40,29 @@ def main() -> None:
         by=["airport_icao", "operation_hour_utc"]
     ).reset_index(drop=True)
 
-    output_path = build_published_dataset_path()
-    published_df.to_csv(output_path, index=False)
+    return published_df
 
-    print(f"Files processed: {len(input_files)}")
+
+def save_published_dataset(df: pd.DataFrame) -> Path:
+    """
+    Save the published DataFrame to the published layer and return the output path.
+    """
+    published_dir = DATA_DIR / "published"
+    published_dir.mkdir(parents=True, exist_ok=True)
+
+    output_path = build_published_dataset_path()
+    df.to_csv(output_path, index=False)
+
+    return output_path
+
+
+def main() -> None:
+    """
+    Build and save the consolidated published dataset.
+    """
+    published_df = build_published_dataset()
+    output_path = save_published_dataset(published_df)
+
     print(f"Rows written: {len(published_df)}")
     print(f"Published dataset saved to: {output_path}")
     print("Sample:")
