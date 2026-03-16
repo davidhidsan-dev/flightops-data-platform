@@ -29,24 +29,13 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def main() -> None:
+def build_airport_hourly_operations(
+    arrivals_df: pd.DataFrame,
+    departures_df: pd.DataFrame,
+) -> pd.DataFrame:
     """
-    Load arrivals and departures staging files, aggregate them by airport and hour,
-    and build the airport_hourly_operations mart table.
+    Build the hourly airport operations mart from arrivals and departures staging data.
     """
-    args = parse_args()
-    airport_icao = args.airport_icao
-    run_date = args.date
-
-    marts_dir = DATA_DIR / "marts"
-    marts_dir.mkdir(parents=True, exist_ok=True)
-
-    arrivals_path = build_arrivals_staging_path(airport_icao, run_date)
-    departures_path = build_departures_staging_path(airport_icao, run_date)
-
-    arrivals_df = pd.read_csv(arrivals_path, parse_dates=["observed_arrival_hour_utc"])
-    departures_df = pd.read_csv(departures_path, parse_dates=["observed_departure_hour_utc"])
-
     arrivals_hourly = (
         arrivals_df.groupby(
             ["arrival_airport_icao", "observed_arrival_hour_utc"],
@@ -109,6 +98,32 @@ def main() -> None:
     operations_df = operations_df.sort_values(
         by=["airport_icao", "operation_hour_utc"]
     ).reset_index(drop=True)
+
+    return operations_df
+
+
+def main() -> None:
+    """
+    Load arrivals and departures staging files, aggregate them by airport and hour,
+    and build the airport_hourly_operations mart table.
+    """
+    args = parse_args()
+    airport_icao = args.airport_icao
+    run_date = args.date
+
+    marts_dir = DATA_DIR / "marts"
+    marts_dir.mkdir(parents=True, exist_ok=True)
+
+    arrivals_path = build_arrivals_staging_path(airport_icao, run_date)
+    departures_path = build_departures_staging_path(airport_icao, run_date)
+
+    arrivals_df = pd.read_csv(arrivals_path, parse_dates=["observed_arrival_hour_utc"])
+    departures_df = pd.read_csv(
+        departures_path,
+        parse_dates=["observed_departure_hour_utc"],
+    )
+
+    operations_df = build_airport_hourly_operations(arrivals_df, departures_df)
 
     output_path = build_operations_mart_path(airport_icao, run_date)
     operations_df.to_csv(output_path, index=False)
