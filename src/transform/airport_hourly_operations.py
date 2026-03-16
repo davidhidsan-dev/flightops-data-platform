@@ -2,6 +2,11 @@ import argparse
 import pandas as pd
 
 from src.config import DATA_DIR
+from src.utils.path_builders import (
+    build_arrivals_staging_path,
+    build_departures_staging_path,
+    build_operations_mart_path,
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -33,12 +38,11 @@ def main() -> None:
     airport_icao = args.airport_icao
     run_date = args.date
 
-    staging_dir = DATA_DIR / "staging"
     marts_dir = DATA_DIR / "marts"
     marts_dir.mkdir(parents=True, exist_ok=True)
 
-    arrivals_path = staging_dir / f"arrivals_{airport_icao}_{run_date}_table.csv"
-    departures_path = staging_dir / f"departures_{airport_icao}_{run_date}_table.csv"
+    arrivals_path = build_arrivals_staging_path(airport_icao, run_date)
+    departures_path = build_departures_staging_path(airport_icao, run_date)
 
     arrivals_df = pd.read_csv(arrivals_path, parse_dates=["observed_arrival_hour_utc"])
     departures_df = pd.read_csv(departures_path, parse_dates=["observed_departure_hour_utc"])
@@ -106,7 +110,7 @@ def main() -> None:
         by=["airport_icao", "operation_hour_utc"]
     ).reset_index(drop=True)
 
-    output_path = marts_dir / f"airport_hourly_operations_{airport_icao}_{run_date}.csv"
+    output_path = build_operations_mart_path(airport_icao, run_date)
     operations_df.to_csv(output_path, index=False)
 
     print(f"Rows written: {len(operations_df)}")

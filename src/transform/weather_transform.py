@@ -2,7 +2,11 @@ import argparse
 import json
 import pandas as pd
 
-from src.config import RAW_DIR, DATA_DIR
+from src.config import DATA_DIR
+from src.utils.path_builders import (
+    build_weather_raw_path,
+    build_weather_staging_path,
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -29,21 +33,12 @@ def main() -> None:
     """
     Load raw Open-Meteo weather data from a local JSON file and transform it
     into a staging DataFrame with standardized weather columns.
-
-    The script:
-    - reads raw weather data from the raw layer
-    - extracts the hourly section of the Open-Meteo response
-    - converts it into a tabular structure
-    - adds the airport identifier
-    - renames weather columns to a cleaner schema
-    - converts time into UTC datetime values
-    - saves the result as a local staging CSV file
     """
     args = parse_args()
     airport_icao = args.airport_icao
     run_date = args.date
 
-    raw_path = RAW_DIR / "openmeteo" / f"weather_{airport_icao}_{run_date}.json"
+    raw_path = build_weather_raw_path(airport_icao, run_date)
 
     with raw_path.open("r", encoding="utf-8") as file:
         weather = json.load(file)
@@ -77,7 +72,7 @@ def main() -> None:
     staging_dir = DATA_DIR / "staging"
     staging_dir.mkdir(parents=True, exist_ok=True)
 
-    output_path = staging_dir / f"weather_{airport_icao}_{run_date}_table.csv"
+    output_path = build_weather_staging_path(airport_icao, run_date)
     df.to_csv(output_path, index=False)
 
     print(f"Rows written: {len(df)}")

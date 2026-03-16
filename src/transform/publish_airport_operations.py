@@ -2,20 +2,13 @@ from pathlib import Path
 import pandas as pd
 
 from src.config import DATA_DIR
+from src.utils.path_builders import build_published_dataset_path
 
 
 def main() -> None:
     """
     Read all airport_hourly_operations_enriched mart files, combine them into a
     single published dataset, and save the consolidated CSV output.
-
-    The script:
-    - finds all enriched mart CSV files
-    - loads and concatenates them
-    - derives operation_date from operation_hour_utc
-    - removes duplicate rows
-    - sorts the final dataset
-    - saves the published CSV file
     """
     marts_dir = DATA_DIR / "marts"
     published_dir = DATA_DIR / "published"
@@ -49,7 +42,7 @@ def main() -> None:
         by=["airport_icao", "operation_hour_utc"]
     ).reset_index(drop=True)
 
-    output_path = published_dir / "airport_hourly_operations_enriched.csv"
+    output_path = build_published_dataset_path()
     published_df.to_csv(output_path, index=False)
 
     print(f"Files processed: {len(input_files)}")

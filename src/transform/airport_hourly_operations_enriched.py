@@ -2,6 +2,11 @@ import argparse
 import pandas as pd
 
 from src.config import DATA_DIR
+from src.utils.path_builders import (
+    build_enriched_mart_path,
+    build_operations_mart_path,
+    build_weather_staging_path,
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -34,11 +39,10 @@ def main() -> None:
     run_date = args.date
 
     marts_dir = DATA_DIR / "marts"
-    staging_dir = DATA_DIR / "staging"
     marts_dir.mkdir(parents=True, exist_ok=True)
 
-    operations_path = marts_dir / f"airport_hourly_operations_{airport_icao}_{run_date}.csv"
-    weather_path = staging_dir / f"weather_{airport_icao}_{run_date}_table.csv"
+    operations_path = build_operations_mart_path(airport_icao, run_date)
+    weather_path = build_weather_staging_path(airport_icao, run_date)
 
     operations_df = pd.read_csv(
         operations_path,
@@ -71,7 +75,7 @@ def main() -> None:
         by=["airport_icao", "operation_hour_utc"]
     ).reset_index(drop=True)
 
-    output_path = marts_dir / f"airport_hourly_operations_enriched_{airport_icao}_{run_date}.csv"
+    output_path = build_enriched_mart_path(airport_icao, run_date)
     enriched_df.to_csv(output_path, index=False)
 
     print(f"Rows written: {len(enriched_df)}")

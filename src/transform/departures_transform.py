@@ -2,8 +2,11 @@ import argparse
 import json
 import pandas as pd
 
-from src.config import RAW_DIR, DATA_DIR
-
+from src.config import DATA_DIR
+from src.utils.path_builders import (
+    build_departures_raw_path,
+    build_departures_staging_path
+)
 
 def parse_args() -> argparse.Namespace:
     """
@@ -43,7 +46,7 @@ def main() -> None:
     airport_icao = args.airport_icao
     run_date = args.date
 
-    raw_path = RAW_DIR / "opensky" / f"departures_{airport_icao}_{run_date}.json"
+    raw_path = build_departures_raw_path(airport_icao, run_date)
 
     with raw_path.open("r", encoding="utf-8") as file:
         departures = json.load(file)
@@ -81,7 +84,7 @@ def main() -> None:
     staging_dir = DATA_DIR / "staging"
     staging_dir.mkdir(parents=True, exist_ok=True)
 
-    output_path = staging_dir / f"departures_{airport_icao}_{run_date}_table.csv"
+    output_path = build_departures_staging_path(airport_icao, run_date)
     df.to_csv(output_path, index=False)
 
     print(f"Rows written: {len(df)}")
