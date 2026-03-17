@@ -7,6 +7,7 @@ import requests
 from dotenv import load_dotenv
 
 from src.utils.logger import get_logger
+from src.config import OPENSKY_CLIENT_ID, OPENSKY_CLIENT_SECRET
 
 logger = get_logger(__name__)
 
@@ -15,9 +16,6 @@ load_dotenv()
 BASE_URL = "https://opensky-network.org/api"
 TOKEN_URL = "https://auth.opensky-network.org/auth/realms/opensky-network/protocol/openid-connect/token"
 TOKEN_REFRESH_MARGIN = 30
-
-OPENSKY_CLIENT_ID = os.getenv("OPENSKY_CLIENT_ID")
-OPENSKY_CLIENT_SECRET = os.getenv("OPENSKY_CLIENT_SECRET")
 
 
 class OpenSkyTokenManager:
