@@ -172,6 +172,13 @@ def main() -> None:
             f"Loaded weather raw hourly records={len(weather_raw['hourly']['time'])}"
         )
 
+        if len(arrivals_raw) == 0 or len(departures_raw) == 0:
+            logger.warning(
+                f"One or more operational source datasets are empty for "
+                f"airport={airport_icao} date={run_date}. "
+                f"Pipeline output may be incomplete for this run."
+    )
+
         logger.info("Building staging tables")
         arrivals_df = transform_arrivals_dataframe(arrivals_raw)
         departures_df = transform_departures_dataframe(departures_raw)
