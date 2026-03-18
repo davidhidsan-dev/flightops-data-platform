@@ -92,17 +92,36 @@ def ensure_output_directories() -> None:
     (DATA_DIR / "marts").mkdir(parents=True, exist_ok=True)
     (DATA_DIR / "published").mkdir(parents=True, exist_ok=True)
 
-def ask_bigquery_load() -> bool:
+def confirm_bigquery_load(has_warning: bool = False) -> bool:
     """
     Ask the user whether to load the published dataset into BigQuery.
+
+    If the run has warnings, require a second confirmation before proceeding.
     """
     while True:
-        answer = input("Do you want to load the published dataset into BigQuery? (Y/N): ").strip().upper()
+        answer = input(
+            "Do you want to load the published dataset into BigQuery? (Y/N): "
+        ).strip().upper()
 
-        if answer == "Y":
-            return True
         if answer == "N":
             return False
+
+        if answer == "Y":
+            if not has_warning:
+                return True
+
+            while True:
+                warning_answer = input(
+                    "This run has warnings and may be incomplete. "
+                    "Do you still want to load it into BigQuery? (Y/N): "
+                ).strip().upper()
+
+                if warning_answer == "Y":
+                    return True
+                if warning_answer == "N":
+                    return False
+
+                print("Please answer Y or N.")
 
         print("Please answer Y or N.")
 
@@ -172,12 +191,14 @@ def main() -> None:
             f"Loaded weather raw hourly records={len(weather_raw['hourly']['time'])}"
         )
 
-        if len(arrivals_raw) == 0 or len(departures_raw) == 0:
+        has_operational_warning = len(arrivals_raw) == 0 or len(departures_raw) == 0
+
+        if has_operational_warning:
             logger.warning(
                 f"One or more operational source datasets are empty for "
                 f"airport={airport_icao} date={run_date}. "
                 f"Pipeline output may be incomplete for this run."
-    )
+            )
 
         logger.info("Building staging tables")
         arrivals_df = transform_arrivals_dataframe(arrivals_raw)
@@ -248,15 +269,18 @@ def main() -> None:
         run_airport_operations_checks(published_df)
         logger.info("Data quality checks completed successfully")
 
-        if ask_bigquery_load():
+        if confirm_bigquery_load(has_warning=has_operational_warning):
             logger.info("Loading published dataset to BigQuery")
             table_id = load_airport_operations_to_bigquery(published_df)
             logger.info(f"BigQuery load completed table={table_id}")
         else:
-            logger.info("BigQuery load skipped by user")
+            if has_operational_warning:
+                logger.info("BigQuery load skipped after warning confirmation prompt")
+            else:
+                logger.info("BigQuery load skipped by user")
 
-        logger.info(
-            f"Pipeline completed successfully for airport={airport_icao} date={run_date}"
+                logger.info(
+                    f"Pipeline completed successfully for airport={airport_icao} date={run_date}"
         )
 
     except Exception as error:
