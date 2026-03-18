@@ -92,6 +92,19 @@ def ensure_output_directories() -> None:
     (DATA_DIR / "marts").mkdir(parents=True, exist_ok=True)
     (DATA_DIR / "published").mkdir(parents=True, exist_ok=True)
 
+def ask_bigquery_load() -> bool:
+    """
+    Ask the user whether to load the published dataset into BigQuery.
+    """
+    while True:
+        answer = input("Do you want to load the published dataset into BigQuery? (Y/N): ").strip().upper()
+
+        if answer == "Y":
+            return True
+        if answer == "N":
+            return False
+
+        print("Please answer Y or N.")
 
 def main() -> None:
     """
@@ -228,9 +241,12 @@ def main() -> None:
         run_airport_operations_checks(published_df)
         logger.info("Data quality checks completed successfully")
 
-        logger.info("Loading published dataset to BigQuery")
-        table_id = load_airport_operations_to_bigquery(published_df)
-        logger.info(f"BigQuery load completed table={table_id}")
+        if ask_bigquery_load():
+            logger.info("Loading published dataset to BigQuery")
+            table_id = load_airport_operations_to_bigquery(published_df)
+            logger.info(f"BigQuery load completed table={table_id}")
+        else:
+            logger.info("BigQuery load skipped by user")
 
         logger.info(
             f"Pipeline completed successfully for airport={airport_icao} date={run_date}"
