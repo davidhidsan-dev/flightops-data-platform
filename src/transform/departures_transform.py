@@ -33,6 +33,20 @@ def transform_departures_dataframe(departures: list[dict]) -> pd.DataFrame:
     """
     Transform raw OpenSky departures records into a cleaned staging DataFrame.
     """
+    if not departures:
+        return pd.DataFrame(
+            columns=[
+                "icao24",
+                "callsign",
+                "first_seen_unix",
+                "last_seen_unix",
+                "departure_airport_icao",
+                "arrival_airport_icao",
+                "observed_departure_time_utc",
+                "observed_departure_hour_utc",
+            ]
+        )
+    
     df = pd.DataFrame(departures)
 
     df = df.rename(columns={
