@@ -11,7 +11,7 @@ The project builds a batch mini data system that:
 - enriches operational activity with hourly weather data
 - publishes a consolidated final dataset ready for analysis
 - runs basic data quality validations
-- loads the final dataset into BigQuery
+- optionally loads the final dataset into BigQuery
 
 ## Project goal
 
@@ -28,7 +28,9 @@ Build a reproducible and parameterized pipeline that transforms raw flight and w
 - basic data quality checks
 - airport/date parameterization
 - end-to-end execution through a pipeline runner
-- final loading of the published dataset into BigQuery
+- optional loading of the published dataset into BigQuery
+- structured pipeline logging
+- basic retry logic for external API calls
 
 ## Stack
 
@@ -63,7 +65,8 @@ The current pipeline supports:
 - hourly weather data from Open-Meteo
 - multi-airport result consolidation
 - basic quality checks on the final published dataset
-- loading the final consolidated dataset into BigQuery
+- optional loading of the final consolidated dataset into BigQuery
+- warnings for potentially incomplete runs when an operational source returns empty results
 
 ## Pipeline flow
 
@@ -75,7 +78,7 @@ The current pipeline supports:
 6. weather enrichment in `airport_hourly_operations_enriched`
 7. publication of a consolidated dataset
 8. data quality validation
-9. loading the final dataset into BigQuery
+9. optional loading of the final dataset into BigQuery
 
 ## Final dataset
 
@@ -105,7 +108,13 @@ This command runs the full pipeline end to end:
 - mart construction
 - consolidated dataset publishing
 - quality checks
-- final BigQuery load
+- optional BigQuery load
+
+During execution:
+- the pipeline emits structured logs to the console
+- API clients apply basic retries on temporary failures
+- if an operational source returns empty results, the run is marked with a warning of possible incompleteness
+- BigQuery loading requires manual confirmation, and runs with warnings require an additional confirmation step
 
 The following commands can also be executed independently for development, debugging, or manual reprocessing:
 
@@ -128,8 +137,15 @@ Additional documentation is available in:
 - `docs/architecture.md`
 - `docs/source_assumptions.md`
 
+## Note on development
+
+This project was developed with support from AI tools as programming assistance to accelerate implementation, refactoring, and documentation tasks.
+
+Scope definition, pipeline structure, modeling decisions, source-assumption validation, code review, and interpretation of system behavior were carried out manually.
+
 ## Current limitations
 
 - the pipeline is batch-based, not real-time
 - OpenSky models network-observed activity, not exact official schedules
 - current data quality checks are basic
+- an empty response from an operational source may produce a potentially incomplete run, although the pipeline leaves a clear warning trail and requires reinforced confirmation before loading to BigQuery

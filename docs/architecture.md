@@ -12,7 +12,9 @@ El pipeline:
 - construye tablas mart agregadas por aeropuerto y hora
 - publica un dataset final consolidado
 - ejecuta validaciones básicas de calidad de datos
-- carga el dataset final en BigQuery
+- registra logs estructurados durante la ejecución
+- aplica reintentos básicos en llamadas a APIs externas
+- permite cargar opcionalmente el dataset final en BigQuery
 
 ## ES — Diagrama de arquitectura
 
@@ -52,7 +54,7 @@ flowchart TD
     S --> T[data/published/airport_hourly_operations_enriched.csv]
 
     T --> U[check_airport_operations.py]
-    T --> V[bigquery_loader.py]
+    T --> V[bigquery_loader.py (optional)]
 
     V --> W[BigQuery table]
 ```
@@ -66,6 +68,7 @@ El sistema debe ser capaz de:
 - reutilizar el mismo flujo para múltiples aeropuertos
 - publicar un dataset analítico listo para visualización o carga posterior a un data warehouse
 - validar calidad básica antes de considerar el output final como confiable
+- dejar trazabilidad suficiente para depuración y revisión de runs
 
 ## ES — Fuentes de datos
 
@@ -147,7 +150,7 @@ Ejemplo:
 - `data/published/airport_hourly_operations_enriched.csv`
 
 ### 6. Warehouse layer
-Contiene la tabla final cargada en BigQuery para consumo analítico posterior.
+Contiene la tabla final cargada opcionalmente en BigQuery para consumo analítico posterior.
 
 Ejemplo:
 - `flightops.airport_hourly_operations_enriched`
@@ -176,11 +179,17 @@ Se descargan:
 - salidas desde OpenSky
 - clima horario desde Open-Meteo
 
+Durante esta fase:
+- se registran logs estructurados
+- los clientes API aplican reintentos básicos ante fallos temporales
+
 ### 5. Transformación staging
 Cada fuente se transforma a una tabla limpia:
 - arrivals
 - departures
 - weather
+
+Las transformaciones soportan respuestas vacías de la fuente devolviendo tablas vacías con el esquema esperado.
 
 ### 6. Construcción de mart operativa
 Se agregan arrivals y departures para construir:
@@ -199,11 +208,23 @@ Se calculan columnas derivadas como:
 ### 9. Publicación
 Los resultados por aeropuerto y fecha se consolidan en un único dataset published.
 
+En esta fase se eliminan duplicados exactos en el dataset consolidado final.
+
 ### 10. Data quality checks
 El dataset published se valida con checks básicos antes de considerarlo output final correcto.
 
-### 11. Carga a BigQuery
-El dataset publicado se carga en una tabla final de BigQuery para su consumo posterior.
+Actualmente se validan, entre otros:
+- nulos en columnas clave
+- duplicados a nivel aeropuerto-hora
+- métricas no negativas
+- consistencia de `total_flights_observed`
+
+### 11. Carga opcional a BigQuery
+El dataset publicado puede cargarse en una tabla final de BigQuery para su consumo posterior.
+
+La carga:
+- requiere confirmación manual
+- solicita confirmación reforzada si el run contiene warnings de posible incompletitud
 
 ## ES — Selección de campos de OpenSky
 
@@ -289,7 +310,7 @@ Campos principales:
 Dataset published consolidado final.
 
 ### `flightops.airport_hourly_operations_enriched`
-Tabla final cargada en BigQuery.
+Tabla final cargada opcionalmente en BigQuery.
 
 ## ES — Supuestos y limitaciones
 
@@ -315,11 +336,25 @@ La validación actual cubre checks esenciales, pero no incluye todavía:
 - anomaly detection
 - observability avanzada
 
+### 5. Cobertura parcial o respuestas vacías
+Una fuente operativa puede devolver cero registros para una fecha o aeropuerto concreto.
+
+En este proyecto:
+- eso no se interpreta automáticamente como error técnico
+- pero sí puede indicar cobertura incompleta o disponibilidad parcial de la fuente
+- por ese motivo, el pipeline deja warnings explícitos y exige confirmación reforzada antes de cargar a BigQuery
+
 ## ES — Cómo ejecutar el pipeline
 
 Ejemplo de ejecución:
 
     python -m src.run_airport_pipeline --airport-icao LEMD --date 2026-03-07
+
+Durante la ejecución del runner:
+- se generan logs estructurados en consola
+- las llamadas a APIs aplican reintentos básicos
+- pueden mostrarse warnings si una fuente operativa devuelve resultados vacíos
+- la carga a BigQuery se confirma manualmente
 
 Ejemplo de publicación consolidada:
 
@@ -347,7 +382,9 @@ The pipeline:
 - builds mart tables aggregated by airport and hour
 - publishes a consolidated final dataset
 - runs basic data quality validations
-- loads the final dataset into BigQuery
+- emits structured logs during execution
+- applies basic retry logic to external API calls
+- optionally loads the final dataset into BigQuery
 
 ## EN — Architecture diagram
 
@@ -387,7 +424,7 @@ flowchart TD
     S --> T[data/published/airport_hourly_operations_enriched.csv]
 
     T --> U[check_airport_operations.py]
-    T --> V[bigquery_loader.py]
+    T --> V[bigquery_loader.py (optional)]
 
     V --> W[BigQuery table]
 ```
@@ -401,6 +438,7 @@ The system is designed to:
 - reuse the same flow for multiple airports
 - publish an analytical dataset ready for visualization or later warehouse loading
 - validate basic quality rules before considering the final output reliable
+- provide enough traceability for debugging and run review
 
 ## EN — Data sources
 
@@ -482,7 +520,7 @@ Example:
 - `data/published/airport_hourly_operations_enriched.csv`
 
 ### 6. Warehouse layer
-Contains the final table loaded into BigQuery for downstream analytical consumption.
+Contains the final table optionally loaded into BigQuery for downstream analytical consumption.
 
 Example:
 - `flightops.airport_hourly_operations_enriched`
@@ -511,11 +549,17 @@ The pipeline downloads:
 - departures from OpenSky
 - hourly weather from Open-Meteo
 
+During this phase:
+- structured logs are emitted
+- API clients apply basic retries on temporary failures
+
 ### 5. Staging transformation
 Each source is transformed into a clean table:
 - arrivals
 - departures
 - weather
+
+The transforms support empty source responses by returning empty tables with the expected schema.
 
 ### 6. Operations mart construction
 Arrivals and departures are aggregated to build:
@@ -534,11 +578,23 @@ Derived columns are calculated, such as:
 ### 9. Publishing
 Airport/date results are consolidated into a single published dataset.
 
+At this stage, exact duplicate rows are removed from the final consolidated dataset.
+
 ### 10. Data quality checks
 The published dataset is validated with basic checks before being considered a reliable final output.
 
-### 11. BigQuery load
-The published dataset is loaded into a final BigQuery table for downstream use.
+Current checks include, among others:
+- null values in key columns
+- duplicates at airport-hour grain
+- non-negative metrics
+- consistency of `total_flights_observed`
+
+### 11. Optional BigQuery load
+The published dataset can be loaded into a final BigQuery table for downstream use.
+
+This load:
+- requires manual confirmation
+- asks for reinforced confirmation if the run contains warnings of possible incompleteness
 
 ## EN — OpenSky field selection
 
@@ -624,7 +680,7 @@ Main fields:
 Final consolidated published dataset.
 
 ### `flightops.airport_hourly_operations_enriched`
-Final table loaded into BigQuery.
+Final table optionally loaded into BigQuery.
 
 ## EN — Assumptions and limitations
 
@@ -650,11 +706,25 @@ The current validation layer covers essential checks, but does not yet include:
 - anomaly detection
 - advanced observability
 
+### 5. Partial coverage or empty responses
+An operational source may return zero records for a specific date or airport.
+
+In this project:
+- this is not automatically interpreted as a technical failure
+- but it may indicate incomplete coverage or partial source availability
+- for that reason, the pipeline leaves explicit warnings and requires reinforced confirmation before loading to BigQuery
+
 ## EN — How to run the pipeline
 
 Example pipeline execution:
 
     python -m src.run_airport_pipeline --airport-icao LEMD --date 2026-03-07
+
+During runner execution:
+- structured logs are emitted to the console
+- API calls apply basic retry logic
+- warnings may appear if an operational source returns empty results
+- BigQuery loading is confirmed manually
 
 Example consolidated publishing step:
 

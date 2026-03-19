@@ -11,7 +11,7 @@ El proyecto construye un mini sistema de datos batch que:
 - enriquece la actividad operativa con clima horario
 - publica un dataset final consolidado listo para análisis
 - ejecuta validaciones básicas de calidad de datos
-- carga el dataset final en BigQuery
+- carga opcionalmente el dataset final en BigQuery
 
 ## Objetivo del proyecto
 
@@ -28,7 +28,9 @@ Construir un pipeline reproducible y parametrizable que transforme datos raw de 
 - data quality checks básicos
 - parametrización por aeropuerto y fecha
 - ejecución end-to-end mediante un runner
-- carga final del dataset publicado a BigQuery
+- carga opcional del dataset publicado a BigQuery
+- logging estructurado del pipeline
+- retry básico en llamadas a APIs externas
 
 ## Stack
 
@@ -63,7 +65,8 @@ El pipeline actual soporta:
 - clima horario desde Open-Meteo
 - consolidación de resultados multi-airport
 - checks básicos de calidad sobre el dataset final publicado
-- carga del dataset final consolidado a BigQuery
+- carga opcional del dataset final consolidado a BigQuery
+- warnings de posible incompletitud cuando una fuente operativa devuelve resultados vacíos
 
 ## Flujo del pipeline
 
@@ -75,7 +78,7 @@ El pipeline actual soporta:
 6. enriquecimiento con clima en `airport_hourly_operations_enriched`
 7. publicación de un dataset consolidado
 8. validación de calidad de datos
-9. carga del dataset final a BigQuery
+9. carga opcional del dataset final a BigQuery
 
 ## Dataset final
 
@@ -105,7 +108,13 @@ Este comando ejecuta de extremo a extremo:
 - construcción de marts
 - publicación del dataset consolidado
 - quality checks
-- carga final a BigQuery
+- carga opcional a BigQuery
+
+Durante la ejecución:
+- el pipeline registra logs estructurados en consola
+- los clientes API aplican reintentos básicos ante fallos temporales
+- si una fuente operativa devuelve resultados vacíos, se muestra un warning de posible incompletitud
+- la carga a BigQuery requiere confirmación manual, y en runs con warnings pide confirmación reforzada
 
 Los siguientes comandos pueden ejecutarse de forma independiente solo para desarrollo, depuración o reprocesado manual:
 
@@ -128,8 +137,15 @@ Documentación adicional disponible en:
 - `docs/architecture.md`
 - `docs/source_assumptions.md`
 
+## Nota sobre el desarrollo
+
+Este proyecto fue desarrollado con apoyo de herramientas de IA como asistencia de programación para acelerar tareas de implementación, refactorización y documentación.
+
+La definición del alcance, la estructura del pipeline, las decisiones de modelado, la validación de supuestos de la fuente, la revisión del código y la interpretación del comportamiento del sistema fueron realizadas manualmente.
+
 ## Limitaciones actuales
 
 - el pipeline es batch, no real-time
 - OpenSky modela actividad observada por la red, no horarios oficiales exactos
 - los quality checks actuales son básicos
+- una respuesta vacía de una fuente operativa puede generar un run potencialmente incompleto, aunque el pipeline deja trazabilidad mediante warnings y confirmación reforzada antes de cargar a BigQuery
