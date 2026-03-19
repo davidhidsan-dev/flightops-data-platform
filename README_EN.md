@@ -134,8 +134,8 @@ BigQuery loading:
 
 Additional documentation is available in:
 
-- `docs/architecture.md`
-- `docs/source_assumptions.md`
+- [Architecture documentation](docs/architecture.md)
+- [Source assumptions](docs/source_assumptions.md)
 
 ## Note on development
 
