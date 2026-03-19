@@ -73,10 +73,10 @@ def load_airport_metadata(airport_icao: str) -> dict:
 
 def build_unix_day_window(run_date: str) -> tuple[int, int]:
     """
-    Build a UTC Unix timestamp window [begin, end) for a given date.
+    Build a UTC Unix timestamp window [begin, end] for a given date.
     """
     start_dt = datetime.strptime(run_date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
-    end_dt = start_dt + timedelta(days=1)
+    end_dt = start_dt + timedelta(days=1) - timedelta(seconds=1)
 
     begin = int(start_dt.timestamp())
     end = int(end_dt.timestamp())
