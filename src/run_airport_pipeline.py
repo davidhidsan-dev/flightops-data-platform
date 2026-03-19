@@ -279,8 +279,8 @@ def main() -> None:
             else:
                 logger.info("BigQuery load skipped by user")
 
-                logger.info(
-                    f"Pipeline completed successfully for airport={airport_icao} date={run_date}"
+        logger.info(
+            f"Pipeline completed successfully for airport={airport_icao} date={run_date}"
         )
 
     except Exception as error:
