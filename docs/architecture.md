@@ -54,8 +54,7 @@ flowchart TD
     S --> T[data/published/airport_hourly_operations_enriched.csv]
 
     T --> U[check_airport_operations.py]
-    T --> V[bigquery_loader.py optional]
-
+    U --> V[bigquery_loader.py optional]
     V --> W[BigQuery table]
 ```
 
@@ -424,8 +423,7 @@ flowchart TD
     S --> T[data/published/airport_hourly_operations_enriched.csv]
 
     T --> U[check_airport_operations.py]
-    T --> V[bigquery_loader.py optional]
-
+    U --> V[bigquery_loader.py optional]
     V --> W[BigQuery table]
 ```
 
