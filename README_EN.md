@@ -6,31 +6,25 @@ Versión en español de este README: [README.md](README.md)
 
 End-to-end data engineering project to extract, transform, enrich, and publish observed airport operations and hourly weather data using Python, OpenSky, Open-Meteo, and BigQuery.
 
-The project builds a batch mini data system that:
-- ingests observed airport arrivals and departures
-- enriches operational activity with hourly weather data
-- publishes a consolidated final dataset ready for analysis
-- runs basic data quality validations
-- optionally loads the final dataset into BigQuery
+The final output is a consolidated airport-hour dataset ready for analysis or optional loading into BigQuery.
 
 ## Project goal
 
-Build a reproducible and parameterized pipeline that transforms raw flight and weather data into analytical airport-hour tables.
+Build a reproducible and parameterized pipeline to transform raw flight and weather data into an analytical airport-hour dataset.
 
 ## What this project demonstrates
 
 - external API data extraction
 - raw JSON storage
 - staging transformations in Python
-- analytical mart construction
+- analytical table construction
 - multi-source enrichment
 - consolidated dataset publishing
-- basic data quality checks
+- basic data quality validations
 - airport/date parameterization
 - end-to-end execution through a pipeline runner
-- optional loading of the published dataset into BigQuery
-- structured pipeline logging
-- basic retry logic for external API calls
+- structured logging and basic retry logic for API calls
+- optional BigQuery loading
 
 ## Stack
 
@@ -55,18 +49,6 @@ Build a reproducible and parameterized pipeline that transforms raw flight and w
 - `docs/`: technical project documentation
 - `scripts/`: auxiliary scripts and exploratory tests kept outside the main package
 - `data/`: local pipeline layers (seed, raw, staging, marts, published)
-
-## Current scope
-
-The current pipeline supports:
-- Spanish airports included in the local seed
-- batch processing by airport and date
-- observed arrivals and departures from OpenSky
-- hourly weather data from Open-Meteo
-- multi-airport result consolidation
-- basic quality checks on the final published dataset
-- optional loading of the final consolidated dataset into BigQuery
-- warnings for potentially incomplete runs when an operational source returns empty results
 
 ## Pipeline flow
 
@@ -113,8 +95,9 @@ This command runs the full pipeline end to end:
 During execution:
 - the pipeline emits structured logs to the console
 - API clients apply basic retries on temporary failures
-- if an operational source returns empty results, the run is marked with a warning of possible incompleteness
-- BigQuery loading requires manual confirmation, and runs with warnings require an additional confirmation step
+- if an operational source returns empty results, a warning is generated
+- BigQuery loading requires manual confirmation
+- if the run contains warnings, an additional confirmation is required before loading
 
 The following commands can also be executed independently for development, debugging, or manual reprocessing:
 
@@ -141,11 +124,11 @@ Additional documentation is available in:
 
 This project was developed with support from AI tools as programming assistance to accelerate implementation, refactoring, and documentation tasks.
 
-Scope definition, pipeline structure, modeling decisions, source-assumption validation, code review, and interpretation of system behavior were carried out manually.
+Scope definition, pipeline structure, modeling decisions, assumption validation, and final code review were carried out manually.
 
 ## Current limitations
 
 - the pipeline is batch-based, not real-time
 - OpenSky models network-observed activity, not exact official schedules
 - current data quality checks are basic
-- an empty response from an operational source may produce a potentially incomplete run, although the pipeline leaves a clear warning trail and requires reinforced confirmation before loading to BigQuery
+- an empty response from an operational source may produce a potentially incomplete run, although the pipeline leaves warnings and requires additional confirmation before loading to BigQuery

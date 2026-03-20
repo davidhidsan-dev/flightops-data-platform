@@ -6,31 +6,25 @@ English version of this README: [README_EN.md](README_EN.md)
 
 Proyecto end-to-end de data engineering para extraer, transformar, enriquecer y publicar datos de operaciones aeroportuarias observadas y meteorología horaria usando Python, OpenSky, Open-Meteo y BigQuery.
 
-El proyecto construye un mini sistema de datos batch que:
-- ingiere llegadas y salidas observadas por aeropuerto
-- enriquece la actividad operativa con clima horario
-- publica un dataset final consolidado listo para análisis
-- ejecuta validaciones básicas de calidad de datos
-- carga opcionalmente el dataset final en BigQuery
+El resultado final es un dataset consolidado a nivel aeropuerto-hora, listo para análisis o carga opcional en BigQuery.
 
 ## Objetivo del proyecto
 
-Construir un pipeline reproducible y parametrizable que transforme datos raw de vuelos y clima en tablas analíticas a nivel de aeropuerto y hora.
+Construir un pipeline reproducible y parametrizable para transformar datos raw de vuelos y clima en un dataset analítico a nivel de aeropuerto-hora.
 
 ## Qué demuestra este proyecto
 
 - extracción de datos desde APIs externas
 - almacenamiento raw en JSON
 - transformaciones staging en Python
-- construcción de marts analíticas
+- construcción de tablas analíticas
 - enriquecimiento multi-fuente
 - publicación de un dataset consolidado
-- data quality checks básicos
+- validaciones básicas de calidad de datos
 - parametrización por aeropuerto y fecha
 - ejecución end-to-end mediante un runner
-- carga opcional del dataset publicado a BigQuery
-- logging estructurado del pipeline
-- retry básico en llamadas a APIs externas
+- logging estructurado y retry básico en llamadas a APIs
+- carga opcional a BigQuery
 
 ## Stack
 
@@ -55,18 +49,6 @@ Construir un pipeline reproducible y parametrizable que transforme datos raw de 
 - `docs/`: documentación técnica del proyecto
 - `scripts/`: scripts auxiliares y pruebas exploratorias fuera del paquete principal
 - `data/`: capas locales del pipeline (seed, raw, staging, marts, published)
-
-## Alcance actual
-
-El pipeline actual soporta:
-- aeropuertos de España incluidos en el seed local
-- procesamiento batch por aeropuerto y fecha
-- llegadas y salidas observadas desde OpenSky
-- clima horario desde Open-Meteo
-- consolidación de resultados multi-airport
-- checks básicos de calidad sobre el dataset final publicado
-- carga opcional del dataset final consolidado a BigQuery
-- warnings de posible incompletitud cuando una fuente operativa devuelve resultados vacíos
 
 ## Flujo del pipeline
 
@@ -113,8 +95,9 @@ Este comando ejecuta de extremo a extremo:
 Durante la ejecución:
 - el pipeline registra logs estructurados en consola
 - los clientes API aplican reintentos básicos ante fallos temporales
-- si una fuente operativa devuelve resultados vacíos, se muestra un warning de posible incompletitud
-- la carga a BigQuery requiere confirmación manual, y en runs con warnings pide confirmación reforzada
+- si una fuente operativa devuelve resultados vacíos, se genera un warning
+- la carga a BigQuery requiere confirmación manual
+- si el run contiene warnings, se solicita una confirmación adicional antes de cargar
 
 Los siguientes comandos pueden ejecutarse de forma independiente solo para desarrollo, depuración o reprocesado manual:
 
@@ -134,18 +117,18 @@ Carga a BigQuery:
 
 Documentación adicional disponible en:
 
-- [Architecture documentation](docs/architecture.md)
-- [Source assumptions](docs/source_assumptions.md)
+- [Documentación de arquitectura](docs/architecture.md)
+- [Supuestos de la fuente](docs/source_assumptions.md)
 
 ## Nota sobre el desarrollo
 
-Este proyecto fue desarrollado con apoyo de herramientas de IA como asistencia de programación para acelerar tareas de implementación, refactorización y documentación.
+Este proyecto se desarrolló con apoyo de herramientas de IA como asistencia de programación para acelerar tareas de implementación, refactorización y documentación.
 
-La definición del alcance, la estructura del pipeline, las decisiones de modelado, la validación de supuestos de la fuente, la revisión del código y la interpretación del comportamiento del sistema fueron realizadas manualmente.
+El alcance, la estructura del pipeline, las decisiones de modelado, la validación de supuestos y la revisión final del código fueron realizadas manualmente.
 
 ## Limitaciones actuales
 
 - el pipeline es batch, no real-time
 - OpenSky modela actividad observada por la red, no horarios oficiales exactos
 - los quality checks actuales son básicos
-- una respuesta vacía de una fuente operativa puede generar un run potencialmente incompleto, aunque el pipeline deja trazabilidad mediante warnings y confirmación reforzada antes de cargar a BigQuery
+- una respuesta vacía de una fuente operativa puede generar un run potencialmente incompleto, aunque el pipeline deja warnings y confirmación adicional antes de cargar a BigQuery
