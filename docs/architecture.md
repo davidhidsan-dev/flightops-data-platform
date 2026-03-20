@@ -9,8 +9,8 @@ El pipeline:
 - extrae datos meteorológicos desde Open-Meteo
 - guarda respuestas raw en JSON
 - transforma los datos a tablas staging limpias
-- construye tablas mart agregadas por aeropuerto y hora
-- publica un dataset final consolidado
+- construye tablas analíticas agregadas por aeropuerto y hora
+- consolida un dataset final listo para consumo analítico
 - ejecuta validaciones básicas de calidad de datos
 - registra logs estructurados durante la ejecución
 - aplica reintentos básicos en llamadas a APIs externas
@@ -65,7 +65,7 @@ El objetivo del proyecto es demostrar capacidades de data engineering mediante l
 El sistema debe ser capaz de:
 - ejecutar un pipeline completo para un aeropuerto y una fecha
 - reutilizar el mismo flujo para múltiples aeropuertos
-- publicar un dataset analítico listo para visualización o carga posterior a un data warehouse
+- generar un dataset analítico listo para análisis o carga posterior a un data warehouse
 - validar calidad básica antes de considerar el output final como confiable
 - dejar trazabilidad suficiente para depuración y revisión de runs
 
@@ -101,7 +101,7 @@ Archivo controlado dentro del proyecto con:
 - zona horaria
 
 Este seed se utiliza para:
-- acotar el scope del MVP
+- acotar el scope del proyecto
 - buscar coordenadas para Open-Meteo
 - validar qué aeropuertos forman parte del pipeline
 
@@ -190,13 +190,13 @@ Cada fuente se transforma a una tabla limpia:
 
 Las transformaciones soportan respuestas vacías de la fuente devolviendo tablas vacías con el esquema esperado.
 
-### 6. Construcción de mart operativa
+### 6. Construcción de tabla analítica operativa
 Se agregan arrivals y departures para construir:
 - una fila por aeropuerto y hora
 - métricas de actividad observada
 
 ### 7. Enriquecimiento meteorológico
-La mart operativa se une con la tabla de clima horario.
+La tabla operativa se une con la tabla de clima horario.
 
 ### 8. Derivación de flags
 Se calculan columnas derivadas como:
@@ -204,13 +204,13 @@ Se calculan columnas derivadas como:
 - `is_high_wind_hour`
 - `is_high_traffic_hour`
 
-### 9. Publicación
-Los resultados por aeropuerto y fecha se consolidan en un único dataset published.
+### 9. Consolidación del dataset final
+Los resultados por aeropuerto y fecha se consolidan en un único dataset final.
 
-En esta fase se eliminan duplicados exactos en el dataset consolidado final.
+En esta fase se eliminan duplicados exactos en el dataset consolidado.
 
 ### 10. Data quality checks
-El dataset published se valida con checks básicos antes de considerarlo output final correcto.
+El dataset final se valida con checks básicos antes de considerarlo output final correcto.
 
 Actualmente se validan, entre otros:
 - nulos en columnas clave
@@ -219,15 +219,15 @@ Actualmente se validan, entre otros:
 - consistencia de `total_flights_observed`
 
 ### 11. Carga opcional a BigQuery
-El dataset publicado puede cargarse en una tabla final de BigQuery para su consumo posterior.
+El dataset final puede cargarse en una tabla de BigQuery para su consumo posterior.
 
 La carga:
 - requiere confirmación manual
-- solicita confirmación reforzada si el run contiene warnings de posible incompletitud
+- solicita confirmación adicional si el run contiene warnings de posible incompletitud
 
 ## ES — Selección de campos de OpenSky
 
-Para el MVP, se seleccionan únicamente los campos mínimos necesarios para construir una tabla de movimientos observados por aeropuerto y hora.
+Para el proyecto, se seleccionan únicamente los campos mínimos necesarios para construir una tabla de movimientos observados por aeropuerto y hora.
 
 ### Campos usados
 - `icao24`
@@ -288,7 +288,7 @@ Campos principales:
 - `wind_speed_10m_kmh`
 
 ### `airport_hourly_operations`
-Mart operativa agregada por aeropuerto y hora.
+Tabla analítica agregada por aeropuerto y hora.
 
 Campos principales:
 - `airport_icao`
@@ -298,7 +298,7 @@ Campos principales:
 - `total_flights_observed`
 
 ### `airport_hourly_operations_enriched`
-Mart enriquecida con clima y flags derivados.
+Tabla analítica enriquecida con clima y flags derivados.
 
 Campos principales:
 - métricas operativas
@@ -306,7 +306,7 @@ Campos principales:
 - flags derivados
 
 ### `airport_hourly_operations_enriched.csv`
-Dataset published consolidado final.
+Dataset final consolidado.
 
 ### `flightops.airport_hourly_operations_enriched`
 Tabla final cargada opcionalmente en BigQuery.
@@ -325,7 +325,7 @@ Por tanto, el dataset modela actividad observada por la red, no horarios oficial
 ### 2. Batch, no real-time
 El pipeline actual es batch y trabaja por fecha, no en tiempo real.
 
-### 3. MVP acotado
+### 3. Scope acotado
 El proyecto se ha construido inicialmente sobre un conjunto pequeño de aeropuertos españoles y una ventana temporal diaria.
 
 ### 4. Quality checks básicos
@@ -341,7 +341,7 @@ Una fuente operativa puede devolver cero registros para una fecha o aeropuerto c
 En este proyecto:
 - eso no se interpreta automáticamente como error técnico
 - pero sí puede indicar cobertura incompleta o disponibilidad parcial de la fuente
-- por ese motivo, el pipeline deja warnings explícitos y exige confirmación reforzada antes de cargar a BigQuery
+- por ese motivo, el pipeline deja warnings explícitos y exige confirmación adicional antes de cargar a BigQuery
 
 ## ES — Cómo ejecutar el pipeline
 
@@ -355,7 +355,7 @@ Durante la ejecución del runner:
 - pueden mostrarse warnings si una fuente operativa devuelve resultados vacíos
 - la carga a BigQuery se confirma manualmente
 
-Ejemplo de publicación consolidada:
+Ejemplo de consolidación del dataset final:
 
     python -m src.transform.publish_airport_operations
 
@@ -378,8 +378,8 @@ The pipeline:
 - extracts hourly weather data from Open-Meteo
 - stores raw API responses as JSON files
 - transforms data into clean staging tables
-- builds mart tables aggregated by airport and hour
-- publishes a consolidated final dataset
+- builds analytical tables aggregated by airport and hour
+- consolidates a final dataset ready for analytical consumption
 - runs basic data quality validations
 - emits structured logs during execution
 - applies basic retry logic to external API calls
@@ -434,7 +434,7 @@ The project aims to demonstrate data engineering capabilities by building a repr
 The system is designed to:
 - run a full pipeline for one airport and one date
 - reuse the same flow for multiple airports
-- publish an analytical dataset ready for visualization or later warehouse loading
+- generate an analytical dataset ready for analysis or later warehouse loading
 - validate basic quality rules before considering the final output reliable
 - provide enough traceability for debugging and run review
 
@@ -470,7 +470,7 @@ A controlled seed file stored in the project containing:
 - timezone
 
 This seed is used to:
-- define the MVP scope
+- define the project scope
 - retrieve coordinates for Open-Meteo
 - validate which airports belong to the pipeline
 
@@ -559,13 +559,13 @@ Each source is transformed into a clean table:
 
 The transforms support empty source responses by returning empty tables with the expected schema.
 
-### 6. Operations mart construction
+### 6. Analytical operations table construction
 Arrivals and departures are aggregated to build:
 - one row per airport and hour
 - observed activity metrics
 
 ### 7. Weather enrichment
-The operations mart is joined with the hourly weather table.
+The operations table is joined with the hourly weather table.
 
 ### 8. Derived flags
 Derived columns are calculated, such as:
@@ -573,13 +573,13 @@ Derived columns are calculated, such as:
 - `is_high_wind_hour`
 - `is_high_traffic_hour`
 
-### 9. Publishing
-Airport/date results are consolidated into a single published dataset.
+### 9. Final dataset consolidation
+Airport/date results are consolidated into a single final dataset.
 
-At this stage, exact duplicate rows are removed from the final consolidated dataset.
+At this stage, exact duplicate rows are removed from the consolidated dataset.
 
 ### 10. Data quality checks
-The published dataset is validated with basic checks before being considered a reliable final output.
+The final dataset is validated with basic checks before being considered a reliable output.
 
 Current checks include, among others:
 - null values in key columns
@@ -588,15 +588,15 @@ Current checks include, among others:
 - consistency of `total_flights_observed`
 
 ### 11. Optional BigQuery load
-The published dataset can be loaded into a final BigQuery table for downstream use.
+The final dataset can be loaded into a BigQuery table for downstream use.
 
 This load:
 - requires manual confirmation
-- asks for reinforced confirmation if the run contains warnings of possible incompleteness
+- asks for an additional confirmation if the run contains warnings of possible incompleteness
 
 ## EN — OpenSky field selection
 
-For the MVP, only the minimum required fields are selected to build an observed movements table by airport and hour.
+For the project, only the minimum required fields are selected to build an observed movements table by airport and hour.
 
 ### Fields used
 - `icao24`
@@ -657,7 +657,7 @@ Main fields:
 - `wind_speed_10m_kmh`
 
 ### `airport_hourly_operations`
-Hourly operations mart aggregated by airport and hour.
+Analytical table aggregated by airport and hour.
 
 Main fields:
 - `airport_icao`
@@ -667,7 +667,7 @@ Main fields:
 - `total_flights_observed`
 
 ### `airport_hourly_operations_enriched`
-Weather-enriched mart with derived flags.
+Weather-enriched analytical table with derived flags.
 
 Main fields:
 - operational metrics
@@ -675,7 +675,7 @@ Main fields:
 - derived flags
 
 ### `airport_hourly_operations_enriched.csv`
-Final consolidated published dataset.
+Final consolidated dataset.
 
 ### `flightops.airport_hourly_operations_enriched`
 Final table optionally loaded into BigQuery.
@@ -694,7 +694,7 @@ Therefore, the dataset models network-observed activity, not exact official sche
 ### 2. Batch, not real-time
 The current pipeline is batch-based and processes one date at a time, not real-time data.
 
-### 3. Scoped MVP
+### 3. Scoped scope
 The project was initially built around a small set of Spanish airports and a daily processing window.
 
 ### 4. Basic quality checks
@@ -710,7 +710,7 @@ An operational source may return zero records for a specific date or airport.
 In this project:
 - this is not automatically interpreted as a technical failure
 - but it may indicate incomplete coverage or partial source availability
-- for that reason, the pipeline leaves explicit warnings and requires reinforced confirmation before loading to BigQuery
+- for that reason, the pipeline leaves explicit warnings and requires an additional confirmation before loading to BigQuery
 
 ## EN — How to run the pipeline
 
@@ -724,7 +724,7 @@ During runner execution:
 - warnings may appear if an operational source returns empty results
 - BigQuery loading is confirmed manually
 
-Example consolidated publishing step:
+Example final dataset consolidation step:
 
     python -m src.transform.publish_airport_operations
 
