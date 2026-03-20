@@ -14,15 +14,15 @@ Build a reproducible and parameterized pipeline to transform raw flight and weat
 
 ## What this project demonstrates
 
-- external API data extraction
-- raw JSON storage
-- staging transformations in Python
+- data extraction from external APIs
+- raw data storage in JSON
+- raw-to-staging transformations in Python
 - analytical table construction
 - multi-source enrichment
-- consolidated dataset publishing
+- consolidation of a final dataset
 - basic data quality validations
-- airport/date parameterization
-- end-to-end execution through a pipeline runner
+- airport and date parameterization
+- end-to-end execution through a runner
 - structured logging and basic retry logic for API calls
 - optional BigQuery loading
 
@@ -58,7 +58,7 @@ Build a reproducible and parameterized pipeline to transform raw flight and weat
 4. transformation into staging tables
 5. construction of `airport_hourly_operations`
 6. weather enrichment in `airport_hourly_operations_enriched`
-7. publication of a consolidated dataset
+7. consolidation of the final dataset
 8. data quality validation
 9. optional loading of the final dataset into BigQuery
 
@@ -88,9 +88,9 @@ This command runs the full pipeline end to end:
 - raw extraction
 - staging transformations
 - mart construction
-- consolidated dataset publishing
+- final dataset consolidation
 - quality checks
-- optional BigQuery load
+- optional BigQuery loading
 
 During execution:
 - the pipeline emits structured logs to the console

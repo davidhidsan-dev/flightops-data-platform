@@ -15,8 +15,8 @@ Construir un pipeline reproducible y parametrizable para transformar datos raw d
 ## Qué demuestra este proyecto
 
 - extracción de datos desde APIs externas
-- almacenamiento raw en JSON
-- transformaciones staging en Python
+- almacenamiento de datos raw en JSON
+- transformaciones desde raw a staging en Python
 - construcción de tablas analíticas
 - enriquecimiento multi-fuente
 - publicación de un dataset consolidado
@@ -58,7 +58,7 @@ Construir un pipeline reproducible y parametrizable para transformar datos raw d
 4. transformación a tablas staging
 5. construcción de `airport_hourly_operations`
 6. enriquecimiento con clima en `airport_hourly_operations_enriched`
-7. publicación de un dataset consolidado
+7. consolidación del dataset final
 8. validación de calidad de datos
 9. carga opcional del dataset final a BigQuery
 
@@ -88,7 +88,7 @@ Este comando ejecuta de extremo a extremo:
 - extracción raw
 - transformaciones staging
 - construcción de marts
-- publicación del dataset consolidado
+- consolidación del dataset final
 - quality checks
 - carga opcional a BigQuery
 
