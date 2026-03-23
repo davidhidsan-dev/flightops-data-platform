@@ -60,7 +60,7 @@ flowchart TD
 
 ## ES — Objetivo técnico
 
-El objetivo del proyecto es demostrar capacidades de data engineering mediante la construcción de un mini sistema de datos reproducible, parametrizable y extensible.
+Construir un mini pipeline de datos reproducible y parametrizable que ingiera datos observados de vuelos y clima, los transforme en tablas analíticas a nivel de aeropuerto-hora, valide reglas básicas de calidad y permita cargar opcionalmente el dataset final en BigQuery.
 
 El sistema debe ser capaz de:
 - ejecutar un pipeline completo para un aeropuerto y una fecha
@@ -429,7 +429,7 @@ flowchart TD
 
 ## EN — Technical objective
 
-The project aims to demonstrate data engineering capabilities by building a reproducible, parameterized, and extensible mini data system.
+Build a reproducible, parameterized mini data pipeline that ingests observed flight and weather data, transforms it into airport-hour analytical tables, validates basic quality rules, and optionally loads the final dataset into BigQuery.
 
 The system is designed to:
 - run a full pipeline for one airport and one date
@@ -694,7 +694,7 @@ Therefore, the dataset models network-observed activity, not exact official sche
 ### 2. Batch, not real-time
 The current pipeline is batch-based and processes one date at a time, not real-time data.
 
-### 3. Scoped scope
+### 3. Limited scope
 The project was initially built around a small set of Spanish airports and a daily processing window.
 
 ### 4. Basic quality checks
@@ -710,7 +710,7 @@ An operational source may return zero records for a specific date or airport.
 In this project:
 - this is not automatically interpreted as a technical failure
 - but it may indicate incomplete coverage or partial source availability
-- for that reason, the pipeline leaves explicit warnings and requires an additional confirmation before loading to BigQuery
+- for that reason, the pipeline emits explicit warnings and requires an additional confirmation before loading to BigQuery
 
 ## EN — How to run the pipeline
 
