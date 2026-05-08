@@ -2,11 +2,26 @@
 
 English version of this README: [README_EN.md](README_EN.md)
 
+> Primer pipeline batch basado en APIs reales, enfocado en extracción, normalización, enriquecimiento y carga opcional a BigQuery.
+
 ## Descripción
 
 Proyecto end-to-end de data engineering para extraer, transformar, enriquecer y publicar datos de operaciones aeroportuarias observadas y meteorología horaria usando Python, OpenSky, Open-Meteo y BigQuery.
 
 El resultado final es un dataset consolidado a nivel aeropuerto-hora, listo para análisis o carga opcional en BigQuery.
+
+## Estado del proyecto
+
+Versión funcional completada:
+
+- extracción desde OpenSky y Open-Meteo
+- persistencia raw en JSON
+- transformaciones staging en Python
+- construcción de dataset aeropuerto-hora
+- enriquecimiento con meteorología horaria
+- quality checks básicos
+- logging estructurado y retry básico
+- carga opcional a BigQuery
 
 ## Objetivo del proyecto
 
