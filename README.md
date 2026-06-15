@@ -27,7 +27,7 @@ Versión funcional completada:
 
 - extracción desde APIs externas
 - persistencia raw en JSON
-- transformaciones staging/marts en Python
+- transformaciones a capas staging/marts en Python
 - enriquecimiento multi-fuente con meteorología
 - dataset consolidado aeropuerto-hora
 - quality checks básicos
@@ -78,7 +78,9 @@ Incluye llegadas observadas, salidas observadas, vuelos totales observados, mét
 
 Ejemplo de ejecución del pipeline completo:
 
-    python -m src.run_airport_pipeline --airport-icao LEMD --date 2026-03-07
+```bash
+python -m src.run_airport_pipeline --airport-icao LEMD --date 2026-03-07
+```
 
 Este comando ejecuta extracción raw, transformaciones, publicación del dataset, quality checks y carga opcional a BigQuery.
 
@@ -93,15 +95,21 @@ Comandos independientes para desarrollo, depuración o reprocesado manual:
 
 Publicación consolidada:
 
-    python -m src.transform.publish_airport_operations
+```bash
+python -m src.transform.publish_airport_operations
+```
 
 Quality checks:
 
-    python -m src.quality.check_airport_operations
+```bash
+python -m src.quality.check_airport_operations
+```
 
 Carga a BigQuery:
 
-    python -m src.load.bigquery_loader
+```bash
+python -m src.load.bigquery_loader
+```
 
 ## Documentación técnica
 
