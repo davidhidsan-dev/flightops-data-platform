@@ -6,9 +6,9 @@ English version of this README: [README_EN.md](README_EN.md)
 
 ## Descripción
 
-Proyecto end-to-end de data engineering para extraer, transformar, enriquecer y publicar datos de operaciones aeroportuarias observadas y meteorología horaria usando Python, OpenSky, Open-Meteo y BigQuery.
+Proyecto end-to-end de data engineering batch para extraer operaciones aeroportuarias observadas desde OpenSky y meteorología horaria desde Open-Meteo, transformar los datos con Python y preparar una capa analítica reproducible.
 
-El resultado final es un dataset consolidado a nivel aeropuerto-hora, listo para análisis o carga opcional en BigQuery.
+El resultado final es un dataset consolidado a nivel aeropuerto-hora con actividad observada, métricas meteorológicas y flags derivados, listo para análisis local o carga opcional en BigQuery.
 
 ## Estado del proyecto
 
@@ -23,21 +23,14 @@ Versión funcional completada:
 - logging estructurado y retry básico
 - carga opcional a BigQuery
 
-## Objetivo del proyecto
-
-Construir un pipeline reproducible y parametrizable para transformar datos raw de vuelos y clima en un dataset analítico a nivel de aeropuerto-hora.
-
 ## Qué demuestra este proyecto
 
-- extracción de datos desde APIs externas
-- almacenamiento de datos raw en JSON
-- transformaciones desde raw a staging en Python
-- construcción de tablas analíticas
-- enriquecimiento multi-fuente
-- publicación de un dataset consolidado
-- validaciones básicas de calidad de datos
-- parametrización por aeropuerto y fecha
-- ejecución end-to-end mediante un runner
+- extracción desde APIs externas
+- persistencia raw en JSON
+- transformaciones staging/marts en Python
+- enriquecimiento multi-fuente con meteorología
+- dataset consolidado aeropuerto-hora
+- quality checks básicos
 - logging estructurado y retry básico en llamadas a APIs
 - carga opcional a BigQuery
 
@@ -68,30 +61,18 @@ Construir un pipeline reproducible y parametrizable para transformar datos raw d
 ## Flujo del pipeline
 
 1. lectura del seed de aeropuertos
-2. extracción raw de llegadas y salidas desde OpenSky
-3. extracción raw de clima desde Open-Meteo
-4. transformación a tablas staging
-5. construcción de `airport_hourly_operations`
-6. enriquecimiento con clima en `airport_hourly_operations_enriched`
-7. consolidación del dataset final
-8. validación de calidad de datos
-9. carga opcional del dataset final a BigQuery
+2. extracción desde OpenSky y Open-Meteo
+3. persistencia raw en JSON
+4. transformaciones staging/marts en Python
+5. publicación del dataset aeropuerto-hora
+6. quality checks básicos
+7. carga opcional a BigQuery
 
 ## Dataset final
 
-El output final publicado es un dataset consolidado a nivel de:
-- aeropuerto
-- hora UTC
+El output final publicado es un dataset consolidado a nivel aeropuerto-hora UTC.
 
-Incluye:
-- llegadas observadas
-- salidas observadas
-- vuelos totales observados
-- métricas meteorológicas horarias
-- flags derivados como:
-  - `is_rainy_hour`
-  - `is_high_wind_hour`
-  - `is_high_traffic_hour`
+Incluye llegadas observadas, salidas observadas, vuelos totales observados, métricas meteorológicas horarias y flags derivados como `is_rainy_hour`, `is_high_wind_hour` e `is_high_traffic_hour`.
 
 ## Ejecución
 
@@ -99,13 +80,7 @@ Ejemplo de ejecución del pipeline completo:
 
     python -m src.run_airport_pipeline --airport-icao LEMD --date 2026-03-07
 
-Este comando ejecuta de extremo a extremo:
-- extracción raw
-- transformaciones staging
-- construcción de marts
-- consolidación del dataset final
-- quality checks
-- carga opcional a BigQuery
+Este comando ejecuta extracción raw, transformaciones, publicación del dataset, quality checks y carga opcional a BigQuery.
 
 Durante la ejecución:
 - el pipeline registra logs estructurados en consola
@@ -114,7 +89,7 @@ Durante la ejecución:
 - la carga a BigQuery requiere confirmación manual
 - si el run contiene warnings, se solicita una confirmación adicional antes de cargar
 
-Los siguientes comandos pueden ejecutarse de forma independiente solo para desarrollo, depuración o reprocesado manual:
+Comandos independientes para desarrollo, depuración o reprocesado manual:
 
 Publicación consolidada:
 

@@ -6,9 +6,9 @@ Versión en español de este README: [README.md](README.md)
 
 ## Description
 
-End-to-end data engineering project to extract, transform, enrich, and publish observed airport operations and hourly weather data using Python, OpenSky, Open-Meteo, and BigQuery.
+End-to-end batch data engineering project for extracting observed airport operations from OpenSky and hourly weather from Open-Meteo, transforming the data with Python, and preparing a reproducible analytical layer.
 
-The final output is a consolidated airport-hour dataset ready for analysis or optional loading into BigQuery.
+The final output is a consolidated airport-hour dataset with observed activity, weather metrics, and derived flags, ready for local analysis or optional loading into BigQuery.
 
 ## Project status
 
@@ -23,22 +23,15 @@ Functional version completed:
 - structured logging and basic retry logic
 - optional BigQuery loading
 
-## Project goal
-
-Build a reproducible and parameterized pipeline to transform raw flight and weather data into an analytical airport-hour dataset.
-
 ## What this project demonstrates
 
-- data extraction from external APIs
-- raw data storage in JSON
-- raw-to-staging transformations in Python
-- analytical table construction
-- multi-source enrichment
-- consolidation of a final dataset
-- basic data quality validations
-- airport and date parameterization
-- end-to-end execution through a runner
-- structured logging and basic retry logic for API calls
+- extraction from external APIs
+- raw JSON persistence
+- staging/marts transformations in Python
+- multi-source enrichment with weather data
+- consolidated airport-hour dataset
+- basic quality checks
+- structured logging and basic retry logic
 - optional BigQuery loading
 
 ## Stack
@@ -68,30 +61,18 @@ Build a reproducible and parameterized pipeline to transform raw flight and weat
 ## Pipeline flow
 
 1. airport seed loading
-2. raw arrivals and departures extraction from OpenSky
-3. raw weather extraction from Open-Meteo
-4. transformation into staging tables
-5. construction of `airport_hourly_operations`
-6. weather enrichment in `airport_hourly_operations_enriched`
-7. consolidation of the final dataset
-8. data quality validation
-9. optional loading of the final dataset into BigQuery
+2. extraction from OpenSky and Open-Meteo
+3. raw JSON persistence
+4. staging/marts transformations in Python
+5. published airport-hour dataset
+6. basic quality checks
+7. optional loading to BigQuery
 
 ## Final dataset
 
-The published output is a consolidated dataset at:
-- airport
-- UTC hour
+The published output is a consolidated airport-hour UTC dataset.
 
-It includes:
-- observed arrivals
-- observed departures
-- total observed flights
-- hourly weather metrics
-- derived flags such as:
-  - `is_rainy_hour`
-  - `is_high_wind_hour`
-  - `is_high_traffic_hour`
+It includes observed arrivals, observed departures, total observed flights, hourly weather metrics, and derived flags such as `is_rainy_hour`, `is_high_wind_hour`, and `is_high_traffic_hour`.
 
 ## Run instructions
 
@@ -99,13 +80,7 @@ Example full pipeline run:
 
     python -m src.run_airport_pipeline --airport-icao LEMD --date 2026-03-07
 
-This command runs the full pipeline end to end:
-- raw extraction
-- staging transformations
-- mart construction
-- final dataset consolidation
-- quality checks
-- optional BigQuery loading
+This command runs raw extraction, transformations, dataset publishing, quality checks, and optional BigQuery loading.
 
 During execution:
 - the pipeline emits structured logs to the console
@@ -114,7 +89,7 @@ During execution:
 - BigQuery loading requires manual confirmation
 - if the run contains warnings, an additional confirmation is required before loading
 
-The following commands can also be executed independently for development, debugging, or manual reprocessing:
+Independent commands for development, debugging, or manual reprocessing:
 
 Consolidated publishing:
 
